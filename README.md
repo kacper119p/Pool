@@ -4,5 +4,5 @@
 
 | Name Surname (initials) | GUID                                     |
 | ----------------------- | ---------------------------------------- |
-| Jakub Janocha           | `{a0ae8ee5-3171-4c5b-bc40-856d4bb3747b}` |
-| Kacper Pastuszka        | `{1d098716-dd43-405b-895b-232d398a7a0f}` |
+| Jakub Janocha           | `{D35CEC26-4E31-42CC-9A4C-5C9A09248AD4}` |
+| Kacper Pastuszka        | `{82627F99-0543-42E5-92A1-111DE84BF3A0}` |
