@@ -1,12 +1,12 @@
 ﻿namespace Data;
 
-public class Table
+public abstract class TableApi
 {
     private float _sizeX;
     private float _sizeY;
     private List<Ball> _balls;
 
-    public Table(float sizeX, float sizeY, List<Ball> balls)
+    public TableApi(float sizeX, float sizeY, List<Ball> balls)
     {
         _sizeX = sizeX;
         _sizeY = sizeY;
