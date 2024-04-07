@@ -8,19 +8,19 @@ namespace Logic
     public class PoolController
     {
         public event EventHandler<ReadOnlyCollection<Ball>> SendBalls;
-        public void AddBall(Ball ball, TableApi tableApi)
+        public void AddBall(Ball ball, Table table)
         {
-            tableApi.Balls.Add(ball);
+            table.Balls.Add(ball);
         }
 
-        public void RemoveBalls(TableApi tableApi)
+        public void RemoveBalls(Table table)
         {
-            tableApi.Balls.Clear();
+            table.Balls.Clear();
         }
 
-        protected virtual void SendTable(TableApi tableApi)
+        protected virtual void SendTable(Table table)
         {
-            SendBalls.Invoke(this,tableApi.Balls.AsReadOnly());
+            SendBalls.Invoke(this,table.Balls.AsReadOnly());
         }
     }
 }
