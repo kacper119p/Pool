@@ -1,6 +1,8 @@
-﻿namespace Data;
+﻿using System.Collections.ObjectModel;
 
-public class Table
+namespace Data;
+
+public class Table :TableApi
 {
     private float _sizeX;
     private float _sizeY;
@@ -19,8 +21,18 @@ public class Table
 
     public List<Ball> Balls => _balls;
 
-    public void AddBall(Ball ball)
+    public override void AddBall(Ball ball)
     {
         Balls.Add(ball);
+    }
+
+    public override void ClearBalls()
+    {
+        Balls.Clear();
+    }
+
+    public override ReadOnlyCollection<Ball> GetBalls()
+    {
+        return Balls.AsReadOnly();
     }
 }

@@ -19,5 +19,14 @@ namespace DataTests
             table.AddBall(ball);
             Assert.True(table.Balls.Contains(ball));
         }
+        
+        [Test]
+        public void ApiTest()
+        {
+            Ball ball = new Ball(Color.Blue, Vector2.Zero, Vector2.Zero, 1,1);
+            TableApi table = new Table(100,100);
+            table.AddBall(ball);
+            Assert.True(table.GetBalls().Contains(ball));
+        }
     }
 }

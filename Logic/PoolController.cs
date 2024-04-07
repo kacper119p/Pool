@@ -1,26 +1,24 @@
-﻿using System.Collections;
-using System.Collections.ObjectModel;
-using System.Runtime.InteropServices.JavaScript;
+﻿using System.Collections.ObjectModel;
 using Data;
 
 namespace Logic
 {
     public class PoolController
     {
-        public event EventHandler<ReadOnlyCollection<Ball>> SendBalls;
-        public void AddBall(Ball ball, Table table)
+        public event EventHandler<ReadOnlyCollection<Ball>> GetBalls;
+        public void AddBall(Ball ball, TableApi table)
         {
-            table.Balls.Add(ball);
+            table.AddBall(ball);
         }
 
-        public void RemoveBalls(Table table)
-        {
-            table.Balls.Clear();
+        public void RemoveBalls(TableApi table)
+        { 
+            table.ClearBalls();
         }
 
-        protected virtual void SendTable(Table table)
+        protected virtual void SendTable(TableApi table)
         {
-            SendBalls.Invoke(this,table.Balls.AsReadOnly());
+            GetBalls.Invoke(this,table.GetBalls());
         }
     }
 }
