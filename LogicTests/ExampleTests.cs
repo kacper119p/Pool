@@ -1,3 +1,7 @@
+using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Numerics;
+using Data;
 using Logic;
 
 namespace LogicTests
@@ -7,8 +11,8 @@ namespace LogicTests
         [Test]
         public void Test()
         {
-            Assert.IsTrue(ExampleClass.ReturnTrue());
-            Assert.IsFalse(ExampleClass.ReturnFalse());
+            PoolController poolController = new PoolController(new PoolTable(100, 100));
+            poolController.AddBall(new PoolBall(Color.Black, Vector2.Zero, Vector2.One, 1,1));
         }
     }
 }
