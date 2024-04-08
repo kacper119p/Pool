@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Data;
 
 namespace Logic
@@ -13,8 +14,7 @@ namespace Logic
         public PoolController(ITable table)
         {
             _table = table;
-            TaskFactory taskFactory = new TaskFactory(_cancellationTokenSource.Token);
-            taskFactory.StartNew(Update, _cancellationTokenSource.Token);
+            Task.Run(() => { _ = Update(_cancellationTokenSource.Token); });
         }
         public void AddBall(IBall ball)
         {
@@ -26,11 +26,11 @@ namespace Logic
             _table.ClearBalls();
         }
 
-        private async Task Update()
+        private async Task Update(CancellationToken cancellationToken)
         {
-            while (true)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                OnBallsUpdate.Invoke(this, _table.Balls);
+                OnBallsUpdate?.Invoke(this, _table.Balls);
                 await Task.Yield();
             }
         }
