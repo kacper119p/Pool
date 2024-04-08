@@ -2,7 +2,7 @@
 
 namespace Logic;
 
-public interface ISimulationController
+public interface ISimulationController : IDisposable
 {
     public void AddBall(IBall ball);
     public void RemoveBalls();
