@@ -3,19 +3,19 @@ using System.Numerics;
 
 namespace Data;
 
-public class Ball
+public class PoolBall : IBall
 {
     private readonly Color _color;
     private Vector2 _position;
-    private Vector2 _forward;
+    private Vector2 _velocity;
     private readonly float _mass;
     private readonly float _radius;
 
-    public Ball(Color color, Vector2 position, Vector2 forward, float mass, float radius)
+    public PoolBall(Color color, Vector2 position, Vector2 forward, float mass, float radius)
     {
         _color = color;
         _position = position;
-        _forward = forward;
+        _velocity = forward;
         _mass = mass;
         _radius = radius;
     }
@@ -24,7 +24,7 @@ public class Ball
 
     public Vector2 Position => _position;
 
-    public Vector2 Forward => _forward;
+    public Vector2 Velocity => _velocity;
 
     public float Mass => _mass;
 

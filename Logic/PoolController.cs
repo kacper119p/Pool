@@ -3,22 +3,25 @@ using Data;
 
 namespace Logic
 {
-    public class PoolController
+    public class PoolController : ISimulationController
     {
-        public event EventHandler<ReadOnlyCollection<Ball>> GetBalls;
-        public void AddBall(Ball ball, TableApi table)
+        ITable _table;
+
+        public event EventHandler<ReadOnlyCollection<IBall>> onBallUpdate;
+
+        public PoolController(ITable table)
         {
-            table.AddBall(ball);
+            _table = table;
+ 
+        }
+        public void AddBall(IBall ball)
+        {
+            _table.AddBall(ball);
         }
 
-        public void RemoveBalls(TableApi table)
+        public void RemoveBalls()
         { 
-            table.ClearBalls();
-        }
-
-        protected virtual void SendTable(TableApi table)
-        {
-            GetBalls.Invoke(this,table.GetBalls());
+            _table.ClearBalls();
         }
     }
 }

@@ -11,9 +11,8 @@ namespace LogicTests
         [Test]
         public void Test()
         {
-            PoolController poolController = new PoolController();
-            TableApi table = new Table(100,100);
-            poolController.AddBall(new Ball(Color.Black, Vector2.Zero, Vector2.One, 1,1),table);
+            PoolController poolController = new PoolController(new PoolTable(100, 100));
+            poolController.AddBall(new PoolBall(Color.Black, Vector2.Zero, Vector2.One, 1,1));
         }
     }
 }
