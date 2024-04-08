@@ -6,15 +6,15 @@ namespace Logic
     public class PoolController : ISimulationController
     {
         ITable _table;
-        CancellationTokenSource source = new CancellationTokenSource();
+        CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public event EventHandler<ReadOnlyCollection<IBall>> OnBallsUpdate;
 
         public PoolController(ITable table)
         {
             _table = table;
-            TaskFactory taskFactory = new TaskFactory(source.Token);
-            taskFactory.StartNew(Update, source.Token);
+            TaskFactory taskFactory = new TaskFactory(_cancellationTokenSource.Token);
+            taskFactory.StartNew(Update, _cancellationTokenSource.Token);
         }
         public void AddBall(IBall ball)
         {
@@ -37,7 +37,8 @@ namespace Logic
 
         public void Dispose()
         {
-            source.Cancel();
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
         }
     }
 }
