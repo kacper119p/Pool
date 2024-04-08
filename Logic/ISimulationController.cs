@@ -5,6 +5,6 @@ namespace Logic;
 public interface ISimulationController
 {
     public void AddBall(IBall ball);
-    public void RemoveBalls()
+    public void RemoveBalls();
 
 }

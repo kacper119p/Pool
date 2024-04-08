@@ -8,7 +8,7 @@ public interface ITable
 
     public float SizeY { get; }
 
-    public ReadOnlyCollection<PoolBall> Balls { get; }
-    public void AddBall(PoolBall ball);
+    public ReadOnlyCollection<IBall> Balls { get; }
+    public void AddBall(IBall ball);
     public void ClearBalls();
 }
