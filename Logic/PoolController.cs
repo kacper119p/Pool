@@ -6,14 +6,15 @@ namespace Logic
     public class PoolController : ISimulationController
     {
         ITable _table;
-        bool _isDisposed;
+        CancellationTokenSource source = new CancellationTokenSource();
 
         public event EventHandler<ReadOnlyCollection<IBall>> OnBallsUpdate;
 
         public PoolController(ITable table)
         {
             _table = table;
-            _ = Task.Run(Update);
+            TaskFactory taskFactory = new TaskFactory(source.Token);
+            taskFactory.StartNew(Update, source.Token);
         }
         public void AddBall(IBall ball)
         {
@@ -27,7 +28,7 @@ namespace Logic
 
         private async Task Update()
         {
-            while (!_isDisposed)
+            while (true)
             {
                 OnBallsUpdate.Invoke(this, _table.Balls);
                 await Task.Yield();
@@ -36,7 +37,7 @@ namespace Logic
 
         public void Dispose()
         {
-            _isDisposed = true;
+            source.Cancel();
         }
     }
 }
