@@ -12,8 +12,8 @@ namespace Presentation.ViewModel.ValidationRules
     {
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
-            if (value is not string str) { return new ValidationResult(true, null); }
-            if (!uint.TryParse(str, out uint _)) { return new ValidationResult(false, null); }
+            if (value is not string str) { return new ValidationResult(false, "not a string"); }
+            if (!uint.TryParse(str, out uint _)) { return new ValidationResult(false, "Not an non negative integer."); }
             return new ValidationResult(true, null);
         }
     }

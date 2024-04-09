@@ -15,8 +15,8 @@ internal class PoolViewModel
         get => _poolModel.SpawnAmountString;
         set
         {
-            if (value.Length == 0) { return; }
-            if (!uint.TryParse(value, out uint _)) { return; }
+            if (!uint.TryParse(value, out uint _) && value.Length != 0) { return; }
+            if (value.Length > 3) { return; }
             _poolModel.SpawnAmountString = value;
         }
     }

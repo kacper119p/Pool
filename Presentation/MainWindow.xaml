@@ -12,6 +12,6 @@
     </Window.DataContext>
     <Grid>
         <Button Content="Button" Command="{Binding Path=CreateBallsCommand}" CommandParameter="{Binding ElementName=SpawnAmountTextBox, Path=Text}" HorizontalAlignment="Left" Height="45" Margin="207,217,0,0" VerticalAlignment="Top" Width="172"/>
-        <TextBox Name="SpawnAmountTextBox" Text="{Binding Path=SpawnAmountText, Mode=TwoWay}" HorizontalAlignment="Left" Height="45" Margin="452,217,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="141"/>
+        <TextBox Name="SpawnAmountTextBox" Text="{Binding Path=SpawnAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="45" Margin="452,217,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="141"/>
     </Grid>
 </Window>
