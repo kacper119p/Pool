@@ -2,6 +2,6 @@
 {
     internal interface IBallController
     {
-        public void Tick();
+        public void Tick(float deltaTime);
     }
 }
