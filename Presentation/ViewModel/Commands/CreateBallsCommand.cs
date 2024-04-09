@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Windows.Input;
 
-namespace Presentation.Commands;
+namespace Presentation.ViewModel.Commands;
 
 internal class CreateBallsCommand : ICommand
 {
@@ -14,6 +14,11 @@ internal class CreateBallsCommand : ICommand
 
     public void Execute(object? parameter)
     {
-        Debug.WriteLine("a");
+        if (parameter is not string value)
+        {
+            return;
+        }
+
+        Debug.WriteLine(value);
     }
 }
