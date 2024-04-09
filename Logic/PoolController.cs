@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
 using Data;
 
 namespace Logic
@@ -9,7 +8,7 @@ namespace Logic
         ITable _table;
         CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        public event EventHandler<ReadOnlyCollection<IBall>> OnBallsUpdate;
+        public event EventHandler<ReadOnlyCollection<IBall>>? OnBallsUpdate;
 
         public PoolController(ITable table)
         {
