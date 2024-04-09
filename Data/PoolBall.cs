@@ -22,11 +22,12 @@ public class PoolBall : IBall
 
     public Color Color => _color;
 
-    public Vector2 Position => _position;
+    public Vector2 Position { get => _position; set => _position = value; }
 
-    public Vector2 Velocity => _velocity;
+    public Vector2 Velocity { get => _velocity; set => _velocity = value; }
 
     public float Mass => _mass;
 
     public float Radius => _radius;
+
 }
