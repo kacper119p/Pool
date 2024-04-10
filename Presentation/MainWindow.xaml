@@ -9,6 +9,7 @@
         Title="MainWindow" Height="450" Width="800" ResizeMode="CanMinimize">
     <Window.Resources>
         <converters:ColorToBrushConverter x:Key="colorToBrushConverter"/>
+        <converters:MultiplyValueConverter x:Key="doubleValueConverter" Multiplier="2"/>
     </Window.Resources>
     <Window.DataContext>
         <viewModel:PoolViewModel/>
@@ -29,7 +30,10 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Ellipse Fill="{Binding Path=Color, Converter={StaticResource colorToBrushConverter}}" Width="{Binding Path=Radius}" Height="{Binding Path=Radius}"/>
+                    <Ellipse Stroke="Black" StrokeThickness="1"
+                             Fill="{Binding Path=Color, Converter={StaticResource colorToBrushConverter}}"
+                             Width="{Binding Path=Radius, Converter={StaticResource doubleValueConverter}}"
+                             Height="{Binding Path=Radius, Converter={StaticResource doubleValueConverter}}"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemContainerStyle>
