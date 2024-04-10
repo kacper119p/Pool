@@ -37,14 +37,4 @@ public class PoolBall : IBall
     public float Mass => _mass;
 
     public float Radius => _radius;
-
-    public float positionX
-    {
-        get => _position.X;
-    }
-
-    public float positionY
-    {
-        get => Position.Y;
-    }
 }

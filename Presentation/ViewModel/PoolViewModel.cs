@@ -13,8 +13,8 @@ internal class PoolViewModel
     private readonly CreateBallsCommand _createBallsCommand = new CreateBallsCommand();
 
     public ICommand CreateBallsCommand => _createBallsCommand;
-    private readonly ObservableCollection<IBall> _balls;
-    public ObservableCollection<IBall> Balls => _balls;
+    private readonly ObservableCollection<BallViewModel> _balls;
+    public ObservableCollection<BallViewModel> Balls => _balls;
 
     public string SpawnAmountText
     {
@@ -38,10 +38,10 @@ internal class PoolViewModel
     public PoolViewModel()
     {
         _poolModel = new PoolModel();
-        _balls = new ObservableCollection<IBall>{
-            new PoolBall(Color.CornflowerBlue, new Vector2(50, 50), Vector2.Zero, 1, 10),
-            new PoolBall(Color.LawnGreen, new Vector2(100, 50), Vector2.Zero, 1, 25),
-            new PoolBall(Color.Crimson, new Vector2(500, 300), Vector2.Zero, 1, 10),
+        _balls = new ObservableCollection<BallViewModel>{
+            new BallViewModel(new PoolBall(Color.CornflowerBlue, new Vector2(50, 50), Vector2.Zero, 1, 10)),
+            new BallViewModel(new PoolBall(Color.LawnGreen, new Vector2(100, 50), Vector2.Zero, 1, 25)),
+            new BallViewModel(new PoolBall(Color.Crimson, new Vector2(500, 300), Vector2.Zero, 1, 10)),
         };
     }
 }
