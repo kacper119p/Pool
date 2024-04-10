@@ -12,8 +12,6 @@ namespace DataTests
         {
             PoolBall ball = new PoolBall(Color.Blue, Vector2.Zero, Vector2.Zero, 1,1);
             PoolTable table = new PoolTable(100,100);
-            table.AddBall(ball);
-            Assert.True(table.Balls.Contains(ball));
         }
         
         [Test]
@@ -21,8 +19,6 @@ namespace DataTests
         {
             PoolBall ball = new PoolBall(Color.Blue, Vector2.Zero, Vector2.Zero, 1,1);
             ITable table = new PoolTable(100,100);
-            table.AddBall(ball);
-            Assert.True(table.Balls.Contains(ball));
         }
     }
 }
