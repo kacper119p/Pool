@@ -38,8 +38,8 @@
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemContainerStyle>
                 <Style TargetType="ContentPresenter">
-                    <Setter Property="Canvas.Left" Value="{Binding Path=positionX}" />
-                    <Setter Property="Canvas.Top" Value="{Binding Path=positionY}" />
+                    <Setter Property="Canvas.Left" Value="{Binding Path=PositionX}" />
+                    <Setter Property="Canvas.Top" Value="{Binding Path=PositionY}" />
                 </Style>
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>

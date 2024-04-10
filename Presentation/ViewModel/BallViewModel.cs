@@ -6,18 +6,18 @@ namespace Presentation.ViewModel
 {
     class BallViewModel
     {
-        private IBall _ball;
+        private readonly IBall _ball;
 
         public Color Color => _ball.Color;
 
         public float Radius => _ball.Radius;
 
-        public float positionX
+        public float PositionX
         {
             get => _ball.Position.X;
         }
 
-        public float positionY
+        public float PositionY
         {
             get => _ball.Position.Y;
         }
