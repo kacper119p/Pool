@@ -10,4 +10,6 @@ public interface IBall
     public Vector2 Velocity { get; set; }
     public float Mass { get; }
     public float Radius { get; }
+    public float positionX { get; }
+    public float positionY { get; }
 }

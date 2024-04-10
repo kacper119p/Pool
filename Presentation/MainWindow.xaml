@@ -4,14 +4,42 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:Presentation.ViewModel"
-        xmlns:validationRules="clr-namespace:Presentation.ViewModel.ValidationRules"
+        xmlns:converters="clr-namespace:Presentation.ViewModel.Converters"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" ResizeMode="CanMinimize">
+    <Window.Resources>
+        <converters:ColorToBrushConverter x:Key="colorToBrushConverter"/>
+    </Window.Resources>
     <Window.DataContext>
         <viewModel:PoolViewModel/>
     </Window.DataContext>
     <Grid>
-        <Button Content="Button" Command="{Binding Path=CreateBallsCommand}" CommandParameter="{Binding ElementName=SpawnAmountTextBox, Path=Text}" HorizontalAlignment="Left" Height="45" Margin="207,217,0,0" VerticalAlignment="Top" Width="172"/>
-        <TextBox Name="SpawnAmountTextBox" Text="{Binding Path=SpawnAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="45" Margin="452,217,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="141"/>
+        <ItemsControl ItemsSource="{Binding Path=Balls}">
+            <ItemsControl.Template>
+                <ControlTemplate TargetType="ItemsControl">
+                    <Border BorderThickness="1" BorderBrush="Black" HorizontalAlignment="Center"  Height="350" Margin="0,0,0,0" VerticalAlignment="Top" Width="800">
+                        <ItemsPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </ItemsControl.Template>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas HorizontalAlignment="Center"  Height="350" Margin="0,0,0,0" VerticalAlignment="Top" Width="800"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Ellipse Fill="{Binding Path=Color, Converter={StaticResource colorToBrushConverter}}" Width="{Binding Path=Radius}" Height="{Binding Path=Radius}"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding Path=positionX}" />
+                    <Setter Property="Canvas.Top" Value="{Binding Path=positionY}" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
+        <Button Content="Button" Command="{Binding Path=CreateBallsCommand}" CommandParameter="{Binding ElementName=SpawnAmountTextBox, Path=Text}" HorizontalAlignment="Left" Height="45" Margin="0,374,0,0" VerticalAlignment="Bottom" Width="172"/>
+        <TextBox Name="SpawnAmountTextBox" Text="{Binding Path=SpawnAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="45" Margin="177,0,0,0" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="140"/>
     </Grid>
 </Window>
