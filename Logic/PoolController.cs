@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Data;
 
 namespace Logic
@@ -6,6 +7,7 @@ namespace Logic
     public class PoolController : ISimulationController
     {
         ITable _table;
+        private PoolBallController _poolBallController;
         CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public event EventHandler<ReadOnlyCollection<IBall>>? OnBallsUpdate;
@@ -13,6 +15,7 @@ namespace Logic
         public PoolController(ITable table)
         {
             _table = table;
+            _poolBallController = new PoolBallController(_table);
             Task.Run(() => { _ = Update(_cancellationTokenSource.Token); });
         }
         public void AddBall(IBall ball)
@@ -27,9 +30,15 @@ namespace Logic
 
         private async Task Update(CancellationToken cancellationToken)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            float previousTime = stopwatch.ElapsedMilliseconds / 1000.0f;
             while (!cancellationToken.IsCancellationRequested)
             {
+                float currentTime = stopwatch.ElapsedMilliseconds / 1000.0f;
                 OnBallsUpdate?.Invoke(this, _table.Balls);
+                _poolBallController.Tick(currentTime-previousTime);
+                previousTime = currentTime;
                 await Task.Yield();
             }
         }
