@@ -8,17 +8,18 @@ namespace DataTests
     {
 
         [Test]
-        public void ListTest()
+        public void PoolBallTest()
         {
             PoolBall ball = new PoolBall(Color.Blue, Vector2.Zero, Vector2.Zero, 1,1);
-            PoolTable table = new PoolTable(100,100);
-        }
-        
-        [Test]
-        public void ApiTest()
-        {
-            PoolBall ball = new PoolBall(Color.Blue, Vector2.Zero, Vector2.Zero, 1,1);
-            ITable table = new PoolTable(100,100);
+            Assert.AreEqual(Color.Blue,ball.Color );
+            Assert.AreEqual(Vector2.Zero,ball.Position);
+            ball.Position = Vector2.One;
+            Assert.AreEqual(Vector2.One,ball.Position);
+            Assert.AreEqual(Vector2.Zero,ball.Velocity);
+            ball.Velocity = Vector2.One;
+            Assert.AreEqual(Vector2.One,ball.Velocity);
+            Assert.AreEqual(1,ball.Mass);
+            Assert.AreEqual(1,ball.Radius);
         }
     }
 }
