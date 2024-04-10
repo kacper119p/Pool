@@ -11,11 +11,11 @@ public class PoolBall : IBall
     private readonly float _mass;
     private readonly float _radius;
 
-    public PoolBall(Color color, Vector2 position, Vector2 forward, float mass, float radius)
+    public PoolBall(Color color, Vector2 position, Vector2 velocity, float mass, float radius)
     {
         _color = color;
         _position = position;
-        _velocity = forward;
+        _velocity = velocity;
         _mass = mass;
         _radius = radius;
     }
