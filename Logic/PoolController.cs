@@ -1,45 +1,80 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Drawing;
+using System.Numerics;
 using Data;
 
 namespace Logic
 {
     public class PoolController : ISimulationController
     {
-        ITable _table;
-        private PoolBallController _poolBallController;
-        CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly ITable _table;
+        private readonly IPoolBallsBehaviour _ballsBehaviour;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly Task _updateHandle;
+        private readonly object _tablesLock = new object();
+        private readonly List<PoolBallData> _ballData = new List<PoolBallData>();
 
-        public event EventHandler<ReadOnlyCollection<IBall>>? OnBallsUpdate;
+        public object Lock => _tablesLock;
 
-        public PoolController(ITable table)
+        public event EventHandler<ReadOnlyCollection<IBallData>>? OnBallsUpdate;
+
+        public PoolController(float tableWidth, float tableHeight, IPoolBallsBehaviour ballsBehaviour)
         {
-            _table = table;
-            _poolBallController = new PoolBallController(_table);
-            Task.Run(() => { _ = Update(_cancellationTokenSource.Token); });
+            _table = new PoolTable(tableWidth, tableHeight);
+            _ballsBehaviour = ballsBehaviour;
+            _updateHandle = Task.Run(() => { Update(_cancellationTokenSource.Token); });
         }
+
+        public void AddBall(Color color, Vector2 position, Vector2 velocity, float mass, float radius)
+        {
+            lock (_tablesLock)
+            {
+                _table.AddBall(new PoolBall(color, position, velocity, mass, radius));
+                _ballData.Add(new PoolBallData());
+            }
+        }
+
         public void AddBall(IBall ball)
         {
-            _table.AddBall(ball);
+            lock (_tablesLock)
+            {
+                _table.AddBall(ball);
+                _ballData.Add(new PoolBallData());
+            }
         }
 
         public void RemoveBalls()
         {
-            _table.ClearBalls();
+            lock (_tablesLock)
+            {
+                _table.ClearBalls();
+                _ballData.Clear();
+            }
         }
 
-        private async Task Update(CancellationToken cancellationToken)
+        private void Update(CancellationToken cancellationToken)
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             float previousTime = stopwatch.ElapsedMilliseconds / 1000.0f;
             while (!cancellationToken.IsCancellationRequested)
             {
-                float currentTime = stopwatch.ElapsedMilliseconds / 1000.0f;
-                OnBallsUpdate?.Invoke(this, _table.Balls);
-                _poolBallController.Tick(currentTime-previousTime);
-                previousTime = currentTime;
-                await Task.Yield();
+                lock (_tablesLock)
+                {
+                    float currentTime = stopwatch.ElapsedMilliseconds / 1000.0f;
+                    _ballsBehaviour.Tick(currentTime - previousTime, _table);
+                    ReadOnlyCollection<IBall> balls = _table.Balls;
+                    for (int i = 0; i < _ballData.Count; i++)
+                    {
+                        _ballData[i].Color = balls[i].Color;
+                        _ballData[i].Position = balls[i].Position;
+                        _ballData[i].Radius = balls[i].Radius;
+                        _ballData[i].Mass = balls[i].Mass;
+                    }
+                    OnBallsUpdate?.Invoke(this, _ballData.Cast<IBallData>().ToList().AsReadOnly());
+                    previousTime = currentTime;
+                }
             }
         }
 
@@ -47,6 +82,7 @@ namespace Logic
         {
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
+            _updateHandle.Dispose();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using Presentation.Model;
 using System.Windows.Input;
 
 namespace Presentation.ViewModel.Commands;
@@ -7,18 +7,24 @@ internal class CreateBallsCommand : ICommand
 {
     public event EventHandler? CanExecuteChanged;
 
+    private PoolModel _model;
+
+    public CreateBallsCommand (PoolModel model)
+    {
+        _model = model;
+    }
+
     public bool CanExecute(object? parameter)
     {
-        return true;
+        return parameter is string;
     }
 
     public void Execute(object? parameter)
     {
-        if (parameter is not string value)
+        string? value = (string?)parameter;
+        if(int.TryParse(value, out int num))
         {
-            return;
+            _model.CreateBalls(num);
         }
-
-        Debug.WriteLine(value);
     }
 }

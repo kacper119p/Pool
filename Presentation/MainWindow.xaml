@@ -9,13 +9,12 @@
         Title="MainWindow" Height="450" Width="800" ResizeMode="CanMinimize">
     <Window.Resources>
         <converters:ColorToBrushConverter x:Key="colorToBrushConverter"/>
-        <converters:MultiplyValueConverter x:Key="doubleValueConverter" Multiplier="2"/>
     </Window.Resources>
     <Window.DataContext>
         <viewModel:PoolViewModel/>
     </Window.DataContext>
     <Grid>
-        <ItemsControl ItemsSource="{Binding Path=Balls}">
+        <ItemsControl ItemsSource="{Binding Balls}">
             <ItemsControl.Template>
                 <ControlTemplate TargetType="ItemsControl">
                     <Border BorderThickness="1" BorderBrush="Black" HorizontalAlignment="Center"  Height="350" Margin="0,0,0,0" VerticalAlignment="Top" Width="800">
@@ -30,20 +29,20 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Ellipse Stroke="Black" StrokeThickness="1"
-                             Fill="{Binding Path=Color, Converter={StaticResource colorToBrushConverter}}"
-                             Width="{Binding Path=Radius, Converter={StaticResource doubleValueConverter}}"
-                             Height="{Binding Path=Radius, Converter={StaticResource doubleValueConverter}}"/>
+                    <Path Stroke="Black" StrokeThickness="1" Fill="{Binding Color, Converter={StaticResource colorToBrushConverter}}" >
+                        <Path.Data>
+                            <EllipseGeometry Center="{Binding Center}" RadiusX="{Binding Radius}" RadiusY="{Binding Radius}" />
+                        </Path.Data>
+                    </Path>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemContainerStyle>
                 <Style TargetType="ContentPresenter">
-                    <Setter Property="Canvas.Left" Value="{Binding Path=PositionX}" />
-                    <Setter Property="Canvas.Top" Value="{Binding Path=PositionY}" />
                 </Style>
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>
-        <Button Content="Button" Command="{Binding Path=CreateBallsCommand}" CommandParameter="{Binding ElementName=SpawnAmountTextBox, Path=Text}" HorizontalAlignment="Left" Height="45" Margin="0,374,0,0" VerticalAlignment="Bottom" Width="172"/>
-        <TextBox Name="SpawnAmountTextBox" Text="{Binding Path=SpawnAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="45" Margin="177,0,0,0" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="140"/>
+        <Button Content="Symuluj" Command="{Binding CreateBallsCommand}" CommandParameter="{Binding Text, ElementName=SpawnAmountTextBox}" HorizontalAlignment="Left" Height="45" Margin="135,0,0,10" VerticalAlignment="Bottom" Width="180"/>
+        <TextBox Name="SpawnAmountTextBox" Text="{Binding Path=SpawnAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="45" Margin="85,0,0,10" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="45" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+        <TextBlock Text="Liczba kul:" HorizontalAlignment="Left" Height="20" Margin="20,0,0,23" VerticalAlignment="Bottom" Width="60" TextAlignment="Right"/>
     </Grid>
 </Window>
