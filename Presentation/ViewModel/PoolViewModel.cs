@@ -23,15 +23,12 @@ internal class PoolViewModel
         get => _spawnAmountString;
         set
         {
-            if (!uint.TryParse(value, out uint _) && value.Length != 0)
+            if (!uint.TryParse(value, out uint num) && value.Length != 0)
             {
                 return;
             }
 
-            if (value.Length > 3)
-            {
-                return;
-            }
+            if (num > 15) return;
 
             _spawnAmountString = value;
         }
