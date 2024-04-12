@@ -28,9 +28,9 @@ internal class PoolViewModel
                 return;
             }
 
-            if (num > 15)
+            if (num > 30)
             {
-                _spawnAmountString = "15";
+                _spawnAmountString = "30";
                 return;
             }
                 
