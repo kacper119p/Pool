@@ -70,7 +70,6 @@ namespace Logic
                         _ballData[i].Color = balls[i].Color;
                         _ballData[i].Position = balls[i].Position;
                         _ballData[i].Radius = balls[i].Radius;
-                        _ballData[i].Mass = balls[i].Mass;
                     }
                     OnBallsUpdate?.Invoke(this, _ballData.Cast<IBallData>().ToList().AsReadOnly());
                     previousTime = currentTime;
