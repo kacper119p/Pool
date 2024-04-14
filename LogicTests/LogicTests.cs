@@ -8,6 +8,7 @@ namespace LogicTests
 {
     public class LogicTests
     {
+        private Collection<IBall> _balls;
         [Test]
         public void PoolBallsBehaviourTest()
         {
@@ -25,8 +26,22 @@ namespace LogicTests
         {
             IPoolBallsBehaviour behaviour = new SimplifiedPoolBallsBehaviour();
             ISimulationController controller = new PoolController(100,100,behaviour);
-            IBall ball = new PoolBall(Color.Blue, new Vector2(15,15),new Vector2(1,0),1,1 );
-            Assert.False(controller.);
+            _balls = new ObservableCollection<IBall>();
+            controller.OnBallsUpdate += Controllerhelp;
+            controller.AddBall(Color.Blue, new Vector2(15,15),new Vector2(1,0),1,1 );
+            controller.AddBall(Color.Red, new Vector2(15,15),new Vector2(1,0),1,1 );
+            Console.Write(_balls);
+        }
+
+            public void Controllerhelp(object? sender, ReadOnlyCollection<IBallData> balls)
+            {
+                for (int i = 0; i < _balls.Count; i++)
+                {
+                    _balls[i].Position = balls[i].Position;
+                    _balls[i].Color = balls[i].Color;
+                    _balls[i].Radius = balls[i].Radius;
+                }
+            
+            }
         }
     }
-}
