@@ -8,6 +8,8 @@ namespace Logic
 {
     public class PoolController : ISimulationController
     {
+        private const float MinFrameDuration = 0.011f;
+
         private readonly ITable _table;
         private readonly IPoolBallsBehaviour _ballsBehaviour;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -57,12 +59,16 @@ namespace Logic
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            float previousTime = stopwatch.ElapsedMilliseconds / 1000.0f;
+            float previousTime = (float)stopwatch.Elapsed.TotalSeconds;
             while (!cancellationToken.IsCancellationRequested)
             {
+                float currentTime;
+                do
+                {
+                    currentTime = (float)stopwatch.Elapsed.TotalSeconds;
+                } while (currentTime - previousTime < MinFrameDuration);
                 lock (_tablesLock)
                 {
-                    float currentTime = stopwatch.ElapsedMilliseconds / 1000.0f;
                     _ballsBehaviour.Tick(currentTime - previousTime, _table);
                     ReadOnlyCollection<IBall> balls = _table.Balls;
                     for (int i = 0; i < _ballData.Count; i++)
