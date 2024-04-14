@@ -62,13 +62,14 @@ namespace Logic
             float previousTime = (float)stopwatch.Elapsed.TotalSeconds;
             while (!cancellationToken.IsCancellationRequested)
             {
-                float currentTime;
-                do
-                {
-                    currentTime = (float)stopwatch.Elapsed.TotalSeconds;
-                } while (currentTime - previousTime < MinFrameDuration);
                 lock (_tablesLock)
                 {
+                    float currentTime;
+                    do
+                    {
+                        currentTime = (float)stopwatch.Elapsed.TotalSeconds;
+                    } while (currentTime - previousTime < MinFrameDuration);
+
                     _ballsBehaviour.Tick(currentTime - previousTime, _table);
                     ReadOnlyCollection<IBall> balls = _table.Balls;
                     for (int i = 0; i < _ballData.Count; i++)
