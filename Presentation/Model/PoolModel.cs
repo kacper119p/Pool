@@ -1,4 +1,5 @@
-﻿using Logic;
+﻿using Data;
+using Logic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Numerics;
@@ -17,7 +18,7 @@ internal class PoolModel
 
     public PoolModel()
     {
-        _simulationController = new PoolController(800, 350, new SimplifiedPoolBallsBehaviour());
+        _simulationController = new PoolController(new PoolTable(800, 350), new SimplifiedPoolBallsBehaviour());
 
         _balls = new ObservableCollection<BallRenderData>();
 
