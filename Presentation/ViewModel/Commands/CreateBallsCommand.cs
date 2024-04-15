@@ -9,7 +9,7 @@ internal class CreateBallsCommand : ICommand
 
     private PoolModel _model;
 
-    public CreateBallsCommand (PoolModel model)
+    public CreateBallsCommand(PoolModel model)
     {
         _model = model;
     }
@@ -21,10 +21,11 @@ internal class CreateBallsCommand : ICommand
 
     public void Execute(object? parameter)
     {
-        string? value = (string?)parameter;
-        if(int.TryParse(value, out int num))
-        {
-            _model.CreateBalls(num);
-        }
+        string? value = parameter as string;
+        int num;
+        if (value?.Length == 0) { num = 0; }
+        else if (int.TryParse(value, out num)) { }
+        else { return; }
+        _model.CreateBalls(num);
     }
 }
