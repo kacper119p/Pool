@@ -21,9 +21,9 @@ namespace Logic
 
         public event EventHandler<ReadOnlyCollection<IBallData>>? OnBallsUpdate;
 
-        public PoolController(float tableWidth, float tableHeight, IPoolBallsBehaviour ballsBehaviour)
+        public PoolController(ITable table, IPoolBallsBehaviour ballsBehaviour)
         {
-            _table = new PoolTable(tableWidth, tableHeight);
+            _table = table;
             _ballsBehaviour = ballsBehaviour;
             _updateHandle = Task.Run(() => { Update(_cancellationTokenSource.Token); });
         }
