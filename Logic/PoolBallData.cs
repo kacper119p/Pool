@@ -7,7 +7,6 @@ namespace Logic
     {
         public Color Color { get; internal set; }
         public Vector2 Position { get; internal set; }
-        public float Mass { get; internal set; }
         public float Radius { get; internal set; }
     }
 }
