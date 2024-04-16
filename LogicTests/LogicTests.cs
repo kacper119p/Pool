@@ -64,11 +64,6 @@ namespace LogicTests
             _sizeX = 100;
             _sizeY = 100;
             _balls = new List<IBall>();
-            IBall ball = new TestBall(
-                Color.Blue, 
-                new Vector2(15,15),
-                new Vector2(1,0));
-            _balls.Add(ball);
         }
 
         public float SizeX => _sizeX;
@@ -124,16 +119,20 @@ namespace LogicTests
                     1);
                 controller.AddBall(
                     Color.Red,
-                    new Vector2(15, 15),
-                    new Vector2(-5, 20),
+                    new Vector2(19, 15),
+                    new Vector2(-10, 10),
                     1,
                     1);
                 await Task.Run(() => WaitForUpdate());
             }).GetAwaiter().GetResult();
             lock (_ballsLock)
             {
-                Console.Write(_testballs[0].Color);
-                Console.Write(_testballs[1].Color);
+                Assert.AreEqual(2,_testballs.Count);
+                Assert.AreNotEqual(_testballs[0].Color, _testballs[1].Color);
+                Assert.IsTrue(_testballs[0].Position.X>19);
+                Assert.IsTrue(_testballs[0].Position.Y<15);
+                Assert.IsTrue(_testballs[1].Position.Y<19);
+                Assert.IsTrue(_testballs[1].Position.Y>15);
             }
         }
 
