@@ -109,7 +109,7 @@ namespace LogicTests
             {
                 _testballs = new ObservableCollection<IBall>();
                 IPoolBallsBehaviour behaviour = new SimplifiedPoolBallsBehaviour();
-                ISimulationController controller = new PoolController(new TestTable(), behaviour);
+                using ISimulationController controller = new PoolController(new TestTable(), behaviour);
                 controller.OnBallsUpdate += Controllerhelp;
                 controller.AddBall(
                     Color.Blue,

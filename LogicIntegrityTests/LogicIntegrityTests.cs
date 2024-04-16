@@ -33,7 +33,7 @@ public class Tests
         {
             _testballs = new ObservableCollection<IBall>();
             IPoolBallsBehaviour behaviour = new SimplifiedPoolBallsBehaviour();
-            ISimulationController controller = new PoolController(new PoolTable(100, 100), behaviour);
+            using ISimulationController controller = new PoolController(new PoolTable(100, 100), behaviour);
             controller.OnBallsUpdate += Controllerhelp;
             controller.AddBall(
                 Color.Blue,

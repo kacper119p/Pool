@@ -88,7 +88,6 @@ namespace Logic
         {
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
-            _updateHandle.Dispose();
         }
     }
 }
