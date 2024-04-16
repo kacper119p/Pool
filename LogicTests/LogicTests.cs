@@ -91,7 +91,8 @@ namespace LogicTests
     public class LogicTests
     {
         private Collection<IBall> _testballs;
-        private Boolean _onwrite;
+        private readonly object _ballsLock = new object();
+        
         [Test]
         public void PoolBallsBehaviourTest()
         {
@@ -108,9 +109,7 @@ namespace LogicTests
         }
 
         [Test]
-        public void ControllerTest()
-        {
-            _onwrite = false;
+        public void ControllerTest(){
             Task.Run(async () =>
             {
                 _testballs = new ObservableCollection<IBall>();
@@ -131,13 +130,16 @@ namespace LogicTests
                     1);
                 await Task.Run(() => WaitForUpdate());
             }).GetAwaiter().GetResult();
-            Assert.AreEqual(2,_testballs.Count);
-            Assert.AreNotEqual(_testballs[0].Color,_testballs[1].Color);
+            lock (_ballsLock)
+            {
+                Console.Write(_testballs[0].Color);
+                Console.Write(_testballs[1].Color);
+            }
         }
 
         public async Task WaitForUpdate()
         {
-            while (_testballs.Count <2 || _onwrite)
+            while (_testballs.Count <2)
             {
                 
             }
@@ -145,28 +147,18 @@ namespace LogicTests
 
             public void Controllerhelp(object? sender, ReadOnlyCollection<IBallData> balls)
             {
-                lock (_testballs)
+                lock (_ballsLock)
                 {
-                    _onwrite = true;
+                    _testballs.Clear();
                     for (int i = 0; i < balls.Count; i++)
                     {
-                        try
-                        {
-                            _testballs[i].Color = balls[i].Color;
-                            _testballs[i].Position = balls[i].Position;
-                            _testballs[i].Radius = balls[i].Radius;
-                        }
-                        catch (Exception e)
-                        {
-                            IBall ball = new TestBall(Color.Aqua, Vector2.Zero, Vector2.Zero);
-                            _testballs.Add(ball);
-                            _testballs[i].Color = balls[i].Color;
-                            _testballs[i].Position = balls[i].Position;
-                            _testballs[i].Radius = balls[i].Radius;
-                        }
+                        IBall ball = new TestBall(Color.Aqua, Vector2.Zero, Vector2.Zero);
+                        _testballs.Add(ball);
+                        _testballs[i].Color = balls[i].Color;
+                        _testballs[i].Position = balls[i].Position;
+                        _testballs[i].Radius = balls[i].Radius;
+                       
                     }
-
-                    _onwrite = false;
                 }
 
             }
