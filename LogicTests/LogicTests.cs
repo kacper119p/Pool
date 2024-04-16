@@ -148,15 +148,24 @@ namespace LogicTests
             {
                 lock (_ballsLock)
                 {
-                    _testballs.Clear();
                     for (int i = 0; i < balls.Count; i++)
                     {
-                        IBall ball = new TestBall(Color.Aqua, Vector2.Zero, Vector2.Zero);
-                        _testballs.Add(ball);
-                        _testballs[i].Color = balls[i].Color;
-                        _testballs[i].Position = balls[i].Position;
-                        _testballs[i].Radius = balls[i].Radius;
-                       
+                        try
+                        {
+                            _testballs[i].Color = balls[i].Color;
+                            _testballs[i].Position = balls[i].Position;
+                            _testballs[i].Radius = balls[i].Radius;
+                        }
+                        catch
+                        {
+                            IBall ball = new TestBall(Color.Aqua, Vector2.Zero, Vector2.Zero);
+                            _testballs.Add(ball);
+                            _testballs[i].Color = balls[i].Color;
+                            _testballs[i].Position = balls[i].Position;
+                            _testballs[i].Radius = balls[i].Radius;
+                            
+                        }
+
                     }
                 }
 
