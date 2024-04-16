@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTests", "DataTests\Data
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentation", "Presentation\Presentation.csproj", "{4FF8AC8B-6342-4E8C-B4F5-D51123C6C4AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicIntegrityTests", "LogicIntegrityTests\LogicIntegrityTests.csproj", "{348CB743-94BC-499F-902B-A07C7C99D5BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{4FF8AC8B-6342-4E8C-B4F5-D51123C6C4AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FF8AC8B-6342-4E8C-B4F5-D51123C6C4AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4FF8AC8B-6342-4E8C-B4F5-D51123C6C4AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{348CB743-94BC-499F-902B-A07C7C99D5BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{348CB743-94BC-499F-902B-A07C7C99D5BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{348CB743-94BC-499F-902B-A07C7C99D5BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{348CB743-94BC-499F-902B-A07C7C99D5BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

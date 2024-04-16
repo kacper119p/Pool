@@ -139,7 +139,6 @@ namespace LogicTests
                 {
                     Assert.IsEmpty(_testballs);
                 }
-                controller.Dispose();
 
             }).GetAwaiter().GetResult();
         }
