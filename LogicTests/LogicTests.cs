@@ -124,16 +124,24 @@ namespace LogicTests
                     1,
                     1);
                 await Task.Run(() => WaitForUpdate());
+                lock (_ballsLock)
+                {
+                    Assert.AreEqual(2,_testballs.Count);
+                    Assert.AreNotEqual(_testballs[0].Color, _testballs[1].Color);
+                    Assert.IsTrue(_testballs[0].Position.X>19);
+                    Assert.IsTrue(_testballs[0].Position.Y<15);
+                    Assert.IsTrue(_testballs[1].Position.Y<19);
+                    Assert.IsTrue(_testballs[1].Position.Y>15);
+                }
+                controller.RemoveBalls();
+                await Task.Run(() => WaitZero());
+                lock (_ballsLock)
+                {
+                    Assert.IsEmpty(_testballs);
+                }
+                controller.Dispose();
+
             }).GetAwaiter().GetResult();
-            lock (_ballsLock)
-            {
-                Assert.AreEqual(2,_testballs.Count);
-                Assert.AreNotEqual(_testballs[0].Color, _testballs[1].Color);
-                Assert.IsTrue(_testballs[0].Position.X>19);
-                Assert.IsTrue(_testballs[0].Position.Y<15);
-                Assert.IsTrue(_testballs[1].Position.Y<19);
-                Assert.IsTrue(_testballs[1].Position.Y>15);
-            }
         }
 
         public async Task WaitForUpdate()
@@ -144,10 +152,22 @@ namespace LogicTests
             }
         }
 
+        public async Task WaitZero()
+        {
+            while (_testballs.Count !=0)
+            {
+                
+            }
+        }
+
             public void Controllerhelp(object? sender, ReadOnlyCollection<IBallData> balls)
             {
                 lock (_ballsLock)
                 {
+                    if (balls.Count ==0 )
+                    {
+                        _testballs.Clear();
+                    }
                     for (int i = 0; i < balls.Count; i++)
                     {
                         try
