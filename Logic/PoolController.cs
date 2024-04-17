@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
@@ -88,6 +89,18 @@ namespace Logic
         {
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
+        }
+
+        public void RemoveBalls(int amount)
+        {
+            lock (_tablesLock)
+            {
+                _table.RemoveBalls(amount);
+                for (int i = 0; i < amount; i++)
+                {
+                    _ballData.RemoveAt(_ballData.Count - 1);
+                }
+            }
         }
     }
 }

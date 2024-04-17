@@ -11,4 +11,5 @@ public interface ITable
     public ReadOnlyCollection<IBall> Balls { get; }
     public void AddBall(IBall ball);
     public void ClearBalls();
+    public void RemoveBalls(int amount);
 }
