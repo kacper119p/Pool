@@ -5,6 +5,7 @@ namespace Data;
 
 public interface IBall
 {
+    public object Lock { get; }
     public Color Color { get; set; }
     public Vector2 Position { get; set; }
     public Vector2 Velocity { get; set; }

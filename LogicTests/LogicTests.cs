@@ -23,6 +23,8 @@ namespace LogicTests
             _radius = 1;
         }
 
+        public object Lock { get; }
+
         public Color Color
         {
             get => _color;
@@ -66,6 +68,7 @@ namespace LogicTests
             _balls = new List<IBall>();
         }
 
+        public object Lock { get; }
         public float SizeX => _sizeX;
 
         public float SizeY => _sizeY;

@@ -35,4 +35,9 @@ public class SimplifiedPoolBallsBehaviour : IPoolBallsBehaviour
             }
         }
     }
+
+    public void Dispose()
+    {
+        // TODO release managed resources here
+    }
 }
