@@ -21,6 +21,11 @@ internal class CreateBallsCommand : ICommand
 
     public void Execute(object? parameter)
     {
+        Task.Run(() => ExecuteTask(parameter));
+    }
+
+    private void ExecuteTask(object? parameter)
+    {
         string? value = parameter as string;
         int num;
         if (value?.Length == 0) { num = 0; }
