@@ -95,6 +95,7 @@ namespace Logic
         {
             lock (_tablesLock)
             {
+                amount = Math.Min(_ballData.Count, amount);
                 _table.RemoveBalls(amount);
                 for (int i = 0; i < amount; i++)
                 {

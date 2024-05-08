@@ -34,6 +34,7 @@ public class PoolTable : ITable
 
     public void RemoveBalls(int amount)
     {
+        amount = Math.Min(_balls.Count, amount);
         for (int i = 0; i < amount; i++)
         {
             _balls.RemoveAt(_random.Next(0, _balls.Count));
