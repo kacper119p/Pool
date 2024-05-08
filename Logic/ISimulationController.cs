@@ -13,4 +13,5 @@ public interface ISimulationController : IDisposable
 
     public void AddBall(Color color, Vector2 position, Vector2 velocity, float mass, float radius);
     public void RemoveBalls();
+    public void RemoveBalls(int amount);
 }

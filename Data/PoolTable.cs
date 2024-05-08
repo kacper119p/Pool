@@ -7,6 +7,7 @@ public class PoolTable : ITable
     private readonly float _sizeX;
     private readonly float _sizeY;
     private readonly List<IBall> _balls;
+    private readonly Random _random = new Random();
 
     public PoolTable(float sizeX, float sizeY)
     {
@@ -31,4 +32,12 @@ public class PoolTable : ITable
         _balls.Clear();
     }
 
+    public void RemoveBalls(int amount)
+    {
+        amount = Math.Min(_balls.Count, amount);
+        for (int i = 0; i < amount; i++)
+        {
+            _balls.RemoveAt(_random.Next(0, _balls.Count));
+        }
+    }
 }
