@@ -33,8 +33,17 @@ internal class PoolModel
         {
             lock (_ballsLock)
             {
-                _simulationController.RemoveBalls();
-                _balls.Clear();
+                if (amount < 0)
+                {
+                    amount = -amount;
+                    amount = Math.Min(amount, _balls.Count);
+                    _simulationController.RemoveBalls(amount);
+                    for (int i = 0; i < amount; i++)
+                    {
+                        _balls.RemoveAt(_balls.Count - 1);
+                    }
+                    return;
+                }
                 for (int i = 0; i < amount; i++)
                 {
                     Color color = Color.FromArgb(_random.Next(int.MinValue, int.MaxValue));

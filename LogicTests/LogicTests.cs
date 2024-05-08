@@ -82,6 +82,10 @@ namespace LogicTests
             _balls.Clear();
         }
 
+        public void RemoveBalls(int amount)
+        {
+            throw new NotImplementedException();
+        }
     }
     public class LogicTests
     {

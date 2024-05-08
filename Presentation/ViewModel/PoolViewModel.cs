@@ -23,7 +23,12 @@ internal class PoolViewModel
         get => _spawnAmountString;
         set
         {
-            if (!uint.TryParse(value, out uint num) && value.Length != 0)
+            if (value.Equals("-"))
+            {
+                _spawnAmountString = value;
+                return;
+            }
+            if (!int.TryParse(value, out int num) && value.Length != 0)
             {
                 return;
             }
@@ -33,7 +38,12 @@ internal class PoolViewModel
                 _spawnAmountString = "256";
                 return;
             }
-                
+            else if (num < -256)
+            {
+                _spawnAmountString = "-256";
+                return;
+            }
+
             _spawnAmountString = value;
         }
     }
