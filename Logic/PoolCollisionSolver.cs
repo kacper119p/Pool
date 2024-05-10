@@ -55,6 +55,7 @@ public class PoolCollisionSolver : ICollisionSolver
                     SolveCollision(balls[i], balls[j]);
                 }
             }
+            BoundsCollision(balls[i]);
         }
     }
 
@@ -77,6 +78,31 @@ public class PoolCollisionSolver : ICollisionSolver
 
     private bool CheckCollision(IBall a, IBall b)
         => (a.Position - b.Position).Length() <= a.Radius + b.Radius;
+
+    private void BoundsCollision(IBall ball)
+    {
+        if ((ball.Position.X - ball.Radius) < 0)
+        {
+            ball.Position = new Vector2(ball.Radius, ball.Position.Y);
+            ball.Velocity = new Vector2(-ball.Velocity.X, ball.Velocity.Y);
+        }
+        else if ((ball.Position.X + ball.Radius) > _table.SizeX)
+        {
+            ball.Position = new Vector2(_table.SizeX - ball.Radius, ball.Position.Y);
+            ball.Velocity = new Vector2(-ball.Velocity.X, ball.Velocity.Y);
+        }
+
+        if ((ball.Position.Y - ball.Radius) < 0)
+        {
+            ball.Position = new Vector2(ball.Position.X, ball.Radius);
+            ball.Velocity = new Vector2(ball.Velocity.X, -ball.Velocity.Y);
+        }
+        else if ((ball.Position.Y + ball.Radius) > _table.SizeY)
+        {
+            ball.Position = new Vector2(ball.Position.X, _table.SizeY - ball.Radius);
+            ball.Velocity = new Vector2(ball.Velocity.X, -ball.Velocity.Y);
+        }
+    }
 
     public void Dispose()
     {

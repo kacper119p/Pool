@@ -46,7 +46,7 @@ namespace Logic
                 {
                     PoolBall ball = new PoolBall(color, position, velocity, mass, radius);
                     _table.AddBall(ball);
-                    _behaviourHandles.Add(_ballsBehaviourFactory.Create(ball, _table, UpdateInterval));
+                    _behaviourHandles.Add(_ballsBehaviourFactory.Create(ball, UpdateInterval));
                     _ballData.Add(new PoolBallData());
                 }
             }
@@ -59,7 +59,7 @@ namespace Logic
                 lock (_table.Lock)
                 {
                     _table.AddBall(ball);
-                    _behaviourHandles.Add(_ballsBehaviourFactory.Create(ball, _table, UpdateInterval));
+                    _behaviourHandles.Add(_ballsBehaviourFactory.Create(ball, UpdateInterval));
                     _ballData.Add(new PoolBallData());
                 }
             }
