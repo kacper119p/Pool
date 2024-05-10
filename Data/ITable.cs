@@ -9,8 +9,10 @@ public interface ITable
 
     public float SizeY { get; }
 
+    public int BallCount { get; }
+
     public ReadOnlyCollection<IBall> Balls { get; }
     public void AddBall(IBall ball);
     public void ClearBalls();
-    public void RemoveBalls(int amount);
+    public void RemoveAt(int i);
 }

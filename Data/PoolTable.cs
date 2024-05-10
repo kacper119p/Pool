@@ -8,7 +8,6 @@ public class PoolTable : ITable
     private readonly float _sizeX;
     private readonly float _sizeY;
     private readonly List<IBall> _balls;
-    private readonly Random _random = new Random();
 
     public PoolTable(float sizeX, float sizeY)
     {
@@ -22,6 +21,17 @@ public class PoolTable : ITable
     public float SizeX => _sizeX;
 
     public float SizeY => _sizeY;
+
+    public int BallCount
+    {
+        get
+        {
+            lock (_lock)
+            {
+                return _balls.Count;
+            }
+        }
+    }
 
     public ReadOnlyCollection<IBall> Balls => _balls.AsReadOnly();
 
@@ -41,15 +51,11 @@ public class PoolTable : ITable
         }
     }
 
-    public void RemoveBalls(int amount)
+    public void RemoveAt(int i)
     {
         lock (_lock)
         {
-            amount = Math.Min(_balls.Count, amount);
-            for (int i = 0; i < amount; i++)
-            {
-                _balls.RemoveAt(_random.Next(0, _balls.Count));
-            }
+            _balls.RemoveAt(i);
         }
     }
 }
