@@ -4,5 +4,5 @@ namespace Logic;
 
 public interface IBallsBehaviourFactory
 {
-    public IPoolBallsBehaviour Create(IBall ball, ITable table, float interval);
+    public IPoolBallsBehaviour Create(IBall ball, float interval);
 }
