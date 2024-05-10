@@ -2,7 +2,6 @@
 
 namespace Logic;
 
-public interface IPoolBallsBehaviour
+public interface IPoolBallsBehaviour : IDisposable
 {
-    public void Tick(float deltaTime, ITable table);
 }

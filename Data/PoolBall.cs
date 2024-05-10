@@ -5,6 +5,7 @@ namespace Data;
 
 public class PoolBall : IBall
 {
+    private readonly object _lock;
     private Color _color;
     private Vector2 _position;
     private Vector2 _velocity;
@@ -18,35 +19,98 @@ public class PoolBall : IBall
         _velocity = velocity;
         _mass = mass;
         _radius = radius;
+        _lock = new object();
     }
+
+    public object Lock => _lock;
 
     public Color Color
     {
-        get => _color;
-        set => _color = value;
+        get
+        {
+            lock (_lock)
+            {
+                return _color;
+            }
+        }
+        set
+        {
+            lock (_lock)
+            {
+                _color = value;
+            }
+        }
     }
 
     public Vector2 Position
     {
-        get => _position;
-        set => _position = value;
+        get
+        {
+            lock (_lock)
+            {
+                return _position;
+            }
+        }
+        set
+        {
+            lock (_lock)
+            {
+                _position = value;
+            }
+        }
     }
 
     public Vector2 Velocity
     {
-        get => _velocity;
-        set => _velocity = value;
+        get
+        {
+            lock (_lock)
+            {
+                return _velocity;
+            }
+        }
+        set
+        {
+            lock (_lock)
+            {
+                _velocity = value;
+            }
+        }
     }
 
     public float Mass
     {
-        get => _mass;
-        set => _mass = value;
+        get
+        {
+            lock (_lock)
+            {
+                return _mass;
+            }
+        }
+        set
+        {
+            lock (_lock)
+            {
+                _mass = value;
+            }
+        }
     }
 
     public float Radius
     {
-        get => _radius;
-        set => _radius = value;
+        get
+        {
+            lock (_lock)
+            {
+                return _radius;
+            }
+        }
+        set
+        {
+            lock (_lock)
+            {
+                _radius = value;
+            }
+        }
     }
 }

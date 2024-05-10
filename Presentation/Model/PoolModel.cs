@@ -18,7 +18,7 @@ internal class PoolModel
 
     public PoolModel()
     {
-        _simulationController = new PoolController(new PoolTable(800, 350), new SimplifiedPoolBallsBehaviour());
+        _simulationController = new PoolController(new PoolTable(800, 350), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
 
         _balls = new ObservableCollection<BallRenderData>();
 
