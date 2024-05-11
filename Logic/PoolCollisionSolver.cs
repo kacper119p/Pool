@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using Data;
 using System.Timers;
 using Timer = System.Timers.Timer;
@@ -11,6 +12,8 @@ public class PoolCollisionSolver : ICollisionSolver
     private readonly float _interval;
     private readonly Timer _timer;
     private readonly List<IBall> _locked;
+    private readonly AabbTree _aabbTree = new AabbTree();
+    private readonly List<AabbBox> _bounds = new List<AabbBox>();
 
     public PoolCollisionSolver(ITable table, float interval)
     {
@@ -48,19 +51,38 @@ public class PoolCollisionSolver : ICollisionSolver
     {
         for (int i = 0; i < balls.Count; i++)
         {
-            for (int j = i + 1; j < balls.Count; j++)
+            IBall ball = balls[i];
+            Vector2 lowerBound = new Vector2(ball.Position.X - ball.Radius, ball.Position.Y - ball.Radius);
+            Vector2 upperBound = new Vector2(ball.Position.X + ball.Radius, ball.Position.Y + ball.Radius);
+            AabbBox bounds = new AabbBox(lowerBound, upperBound);
+            _aabbTree.Insert(bounds, i);
+            _bounds.Add(bounds);
+        }
+
+        for (int i = 0; i < balls.Count; i++)
+        {
+            LinkedList<int> candidates = _aabbTree.Query(_bounds[i]);
+            foreach (int candidate in candidates)
             {
-                if (CheckCollision(balls[i], balls[j]))
+                if (candidate > i)
                 {
-                    SolveCollision(balls[i], balls[j]);
+                    SolveCollision(balls[i], balls[candidate]);
                 }
             }
             BoundsCollision(balls[i]);
         }
+
+        _aabbTree.Clear();
+        _bounds.Clear();
     }
 
     private void SolveCollision(IBall a, IBall b)
     {
+        if (!CheckCollision(a, b))
+        {
+            return;
+        }
+
         Vector2 offset = a.Position - b.Position;
         float overlay = (a.Radius + b.Radius) - offset.Length();
         offset = offset / offset.Length() * overlay;
