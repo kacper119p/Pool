@@ -48,7 +48,7 @@ internal class PoolModel
                 {
                     Color color = Color.FromArgb(_random.Next(int.MinValue, int.MaxValue));
                     Vector2 position = new Vector2(_random.Next(100, 700), _random.Next(100, 250));
-                    Vector2 velocity = new Vector2(_random.NextSingle() * 500.0f - 500.0f, _random.NextSingle() * 500.0f - 500.0f);
+                    Vector2 velocity = new Vector2(_random.NextSingle() * 500.0f - 250.0f, _random.NextSingle() * 500.0f - 250.0f);
                     float radius = _random.Next(10, 20);
                     float mass = radius * radius;
                     _simulationController.AddBall(color, position, velocity, mass, radius);
