@@ -8,5 +8,7 @@ namespace Logic
 {
     public interface ICollisionSolver : IDisposable
     {
+        public void Update();
+        public AabbTree CollisionTree { get; }
     }
 }

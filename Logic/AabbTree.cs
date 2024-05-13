@@ -5,6 +5,9 @@ namespace Logic;
 public class AabbTree
 {
     private AabbTreeNode? _root;
+    private ReaderWriterLock _lock = new ReaderWriterLock();
+
+    public ReaderWriterLock Lock => _lock;
 
     public void Clear()
     {

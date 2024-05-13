@@ -4,7 +4,7 @@ namespace Data;
 
 public class PoolTable : ITable
 {
-    private readonly object _lock;
+    private readonly ReaderWriterLock _lock = new ReaderWriterLock();
     private readonly float _sizeX;
     private readonly float _sizeY;
     private readonly List<IBall> _balls;
@@ -14,10 +14,10 @@ public class PoolTable : ITable
         _sizeX = sizeX;
         _sizeY = sizeY;
         _balls = new List<IBall>();
-        _lock = new object();
+
     }
 
-    public object Lock => _lock;
+    public ReaderWriterLock Lock => _lock;
     public float SizeX => _sizeX;
 
     public float SizeY => _sizeY;
@@ -26,36 +26,42 @@ public class PoolTable : ITable
     {
         get
         {
-            lock (_lock)
-            {
-                return _balls.Count;
-            }
+            _lock.AcquireReaderLock(60000);
+            int result = _balls.Count;
+            _lock.ReleaseReaderLock();
+            return result;
         }
     }
 
-    public ReadOnlyCollection<IBall> Balls => _balls.AsReadOnly();
+    public ReadOnlyCollection<IBall> Balls
+    {
+        get
+        {
+            _lock.AcquireReaderLock(60000);
+            ReadOnlyCollection<IBall> result = _balls.AsReadOnly();
+            _lock.ReleaseReaderLock();
+            return result;
+        }
+    }
 
     public void AddBall(IBall ball)
     {
-        lock (_lock)
-        {
-            _balls.Add(ball);
-        }
+        _lock.AcquireWriterLock(60000);
+        _balls.Add(ball);
+        _lock.ReleaseWriterLock();
     }
 
     public void ClearBalls()
     {
-        lock (_lock)
-        {
-            _balls.Clear();
-        }
+        _lock.AcquireWriterLock(60000);
+        _balls.Clear();
+        _lock.ReleaseWriterLock();
     }
 
     public void RemoveAt(int i)
     {
-        lock (_lock)
-        {
-            _balls.RemoveAt(i);
-        }
+        _lock.AcquireWriterLock(60000);
+        _balls.RemoveAt(i);
+        _lock.ReleaseWriterLock();
     }
 }

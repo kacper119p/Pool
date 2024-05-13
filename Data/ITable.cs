@@ -4,7 +4,7 @@ namespace Data;
 
 public interface ITable
 {
-    public object Lock { get; }
+    public ReaderWriterLock Lock { get; }
     public float SizeX { get; }
 
     public float SizeY { get; }

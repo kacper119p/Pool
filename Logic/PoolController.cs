@@ -27,7 +27,8 @@ namespace Logic
 
         public event EventHandler<ReadOnlyCollection<IBallData>>? OnBallsUpdate;
 
-        public PoolController(ITable table, IBallsBehaviourFactory ballsBehaviourFactory, ICollisionSolverFactory collisionSolverFactory)
+        public PoolController(ITable table, IBallsBehaviourFactory ballsBehaviourFactory,
+            ICollisionSolverFactory collisionSolverFactory)
         {
             _table = table;
             _ballsBehaviourFactory = ballsBehaviourFactory;
@@ -42,13 +43,13 @@ namespace Logic
         {
             lock (_tablesLock)
             {
-                lock (_table.Lock)
-                {
-                    PoolBall ball = new PoolBall(color, position, velocity, mass, radius);
-                    _table.AddBall(ball);
-                    _behaviourHandles.Add(_ballsBehaviourFactory.Create(ball, UpdateInterval));
-                    _ballData.Add(new PoolBallData());
-                }
+                _table.Lock.AcquireWriterLock(60000);
+                PoolBall ball = new PoolBall(color, position, velocity, mass, radius);
+                _table.AddBall(ball);
+                _behaviourHandles.Add(_ballsBehaviourFactory.Create(ball, UpdateInterval,
+                    _collisionSolver.CollisionTree, _behaviourHandles.Count, _table));
+                _ballData.Add(new PoolBallData());
+                _table.Lock.ReleaseWriterLock();
             }
         }
 
@@ -56,12 +57,12 @@ namespace Logic
         {
             lock (_tablesLock)
             {
-                lock (_table.Lock)
-                {
-                    _table.AddBall(ball);
-                    _behaviourHandles.Add(_ballsBehaviourFactory.Create(ball, UpdateInterval));
-                    _ballData.Add(new PoolBallData());
-                }
+                _table.Lock.AcquireWriterLock(60000);
+                _table.AddBall(ball);
+                _behaviourHandles.Add(_ballsBehaviourFactory.Create(ball, UpdateInterval,
+                    _collisionSolver.CollisionTree, _behaviourHandles.Count, _table));
+                _ballData.Add(new PoolBallData());
+                _table.Lock.ReleaseWriterLock();
             }
         }
 
@@ -69,15 +70,16 @@ namespace Logic
         {
             lock (_tablesLock)
             {
-                lock (_table.Lock)
+                _table.Lock.AcquireWriterLock(60000);
+                foreach (var behaviour in _behaviourHandles)
                 {
-                    foreach (var behaviour in _behaviourHandles)
-                    {
-                        behaviour.Dispose();
-                    }
-                    _table.ClearBalls();
-                    _ballData.Clear();
+                    behaviour.Dispose();
                 }
+
+                _behaviourHandles.Clear();
+                _table.ClearBalls();
+                _ballData.Clear();
+                _table.Lock.ReleaseWriterLock();
             }
         }
 
@@ -120,6 +122,12 @@ namespace Logic
         {
             lock (_tablesLock)
             {
+                _table.Lock.AcquireWriterLock(60000);
+                for (int i = 0; i < _table.BallCount; i++)
+                {
+                    Monitor.Enter(_table.Balls[i]);
+                }
+
                 amount = Math.Min(_ballData.Count, amount);
                 for (int i = 0; i < amount; i++)
                 {
@@ -129,6 +137,19 @@ namespace Logic
                     _behaviourHandles.RemoveAt(index);
                     _ballData.RemoveAt(_ballData.Count - 1);
                 }
+
+                for (int i = 0; i < _behaviourHandles.Count; i++)
+                {
+                    _behaviourHandles[i].Id = i;
+                }
+
+                _collisionSolver.Update();
+
+                for (int i = 0; i < _table.BallCount; i++)
+                {
+                    Monitor.Exit(_table.Balls[i]);
+                }
+                _table.Lock.ReleaseWriterLock();
             }
         }
     }
