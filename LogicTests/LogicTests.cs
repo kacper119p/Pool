@@ -68,7 +68,7 @@ namespace LogicTests
             _balls = new List<IBall>();
         }
 
-        public object Lock { get; }
+        public ReaderWriterLock Lock { get; }
         public float SizeX => _sizeX;
 
         public float SizeY => _sizeY;
@@ -101,20 +101,11 @@ namespace LogicTests
         private Collection<IBall> _testballs;
         private readonly object _ballsLock = new object();
         
-        // [Test]
-        // public void PoolBallsBehaviourTest()
-        // {
-        //     IPoolBallsBehaviour behaviour = new SimplifiedPoolBallsBehaviour();
-        //     ITable table = new PoolTable(100,100);
-        //     IBall ball = new TestBall(
-        //         Color.Blue,
-        //         new Vector2(15,15),
-        //         new Vector2(1,0) );
-        //     table.AddBall(ball);
-        //     behaviour.Tick(1,table);
-        //     Vector2 support = new Vector2(16, 15);
-        //     Assert.AreEqual(support,table.Balls[0].Position);
-        // }
+        [Test]
+        public void PoolBallsBehaviourTest()
+        {
+            PoolBallsBehaviourFactory poolBallsBehaviourFactory = new PoolBallsBehaviourFactory();
+        }
 
         // [Test]
         // public void ControllerTest(){
