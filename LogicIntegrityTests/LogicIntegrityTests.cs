@@ -140,6 +140,54 @@ public class Tests
             }).GetAwaiter().GetResult();
             
         }
+        
+        [Test]
+        public void TreeNegTests()
+        {
+            _testballs = new ObservableCollection<IBall>();
+            Task.Run(async () =>
+            {
+                ICollisionSolverFactory collisionSolverFactory = new PoolCollisionSolverFactory();
+                ITable table = new PoolTable(256,256);
+                IBall ball = new PoolBall(Color.Blue, new Vector2(90,90),new Vector2(-1,-1),1,1);
+                IBall ball1 = new PoolBall(Color.Red, new Vector2(101,101),new Vector2(1,1),1,1);
+                table.AddBall(ball);
+                table.AddBall(ball1);
+                ICollisionSolver collisionSolver = collisionSolverFactory.Create(table,0.1f);
+                collisionSolver.Update();
+                Vector2 lowerBound = new Vector2(table.Balls[0].Position.X - table.Balls[0].Radius, table.Balls[0].Position.Y - table.Balls[0].Radius);
+                Vector2 upperBound = new Vector2(table.Balls[0].Position.X + table.Balls[0].Radius, table.Balls[0].Position.Y + table.Balls[0].Radius);
+                AabbBox bounds = new AabbBox(lowerBound, upperBound);
+                
+                LinkedList<int> candidates = collisionSolver.CollisionTree.Query(bounds);
+                Assert.AreNotEqual(2,candidates.Count);
+
+            }).GetAwaiter().GetResult();
+        }
+
+        [Test]
+        public void TreePositiveTests()
+        {
+            _testballs = new ObservableCollection<IBall>();
+            Task.Run(async () =>
+            {
+                ICollisionSolverFactory collisionSolverFactory = new PoolCollisionSolverFactory();
+                ITable table = new PoolTable(256,256);
+                IBall ball = new PoolBall(Color.Blue, new Vector2(100,100),new Vector2(1,1),1,1);
+                IBall ball1 = new PoolBall(Color.Red, new Vector2(101,101),new Vector2(-1,-1),1,1);
+                table.AddBall(ball);
+                table.AddBall(ball1);
+                ICollisionSolver collisionSolver = collisionSolverFactory.Create(table,1f);
+                collisionSolver.Update();
+                Vector2 lowerBound = new Vector2(table.Balls[0].Position.X - table.Balls[0].Radius, table.Balls[0].Position.Y - table.Balls[0].Radius);
+                Vector2 upperBound = new Vector2(table.Balls[0].Position.X + table.Balls[0].Radius, table.Balls[0].Position.Y + table.Balls[0].Radius);
+                AabbBox bounds = new AabbBox(lowerBound, upperBound);
+                
+                LinkedList<int> candidates = collisionSolver.CollisionTree.Query(bounds);
+                Assert.AreEqual(2,candidates.Count);
+
+            }).GetAwaiter().GetResult();
+        }
 
         public async Task WaitForUpdate(int amount)
         {
