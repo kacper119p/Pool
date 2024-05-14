@@ -125,9 +125,9 @@ namespace LogicTests
         private readonly object _ballsLock = new object();
         [Test]
         public void ControllerTest(){
+            _testballs = new ObservableCollection<IBall>();
             Task.Run(async () =>
             {
-                _testballs = new ObservableCollection<IBall>();
                 ISimulationController controller =  new PoolController(new TestTable(), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
@@ -163,16 +163,17 @@ namespace LogicTests
                 {
                     Assert.IsEmpty(_testballs);
                 }
-
+                controller.OnBallsUpdate -= Controllerhelp;
+                controller.Dispose();
             }).GetAwaiter().GetResult();
         }
 
         [Test]
         public void CollisionTests()
         {
+            _testballs = new ObservableCollection<IBall>();
             Task.Run(async () =>
             {
-                _testballs = new ObservableCollection<IBall>();
                 ISimulationController controller =  new PoolController(new TestTable(), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
@@ -206,6 +207,8 @@ namespace LogicTests
                 {
                     Assert.IsEmpty(_testballs);
                 }
+                controller.OnBallsUpdate -= Controllerhelp;
+                controller.Dispose();
 
             }).GetAwaiter().GetResult();
             
@@ -220,8 +223,8 @@ namespace LogicTests
         }
         public async Task WaitChange()
         {
-            Collection<IBall> _testballs2 = _testballs;
-            while (_testballs2[0].Position.Y == _testballs[0].Position.Y && _testballs2[0].Position.X == _testballs[0].Position.X)
+            Collection<IBall> testballs2 = _testballs;
+            while (testballs2[0].Position.Y == _testballs[0].Position.Y && testballs2[0].Position.X == _testballs[0].Position.X)
             {
                 
             }
