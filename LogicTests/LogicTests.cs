@@ -57,99 +57,128 @@ namespace LogicTests
     }
     public class TestTable : ITable
     {
+        private readonly ReaderWriterLock _lock = new ReaderWriterLock();
         private readonly float _sizeX;
         private readonly float _sizeY;
         private readonly List<IBall> _balls;
 
         public TestTable()
         {
-            _sizeX = 100;
-            _sizeY = 100;
+            _sizeX = 256;
+            _sizeY = 256;
             _balls = new List<IBall>();
+
         }
 
-        public ReaderWriterLock Lock { get; }
+        public ReaderWriterLock Lock => _lock;
         public float SizeX => _sizeX;
 
         public float SizeY => _sizeY;
-        public int BallCount { get; }
 
-        public ReadOnlyCollection<IBall> Balls => _balls.AsReadOnly();
+        public int BallCount
+        {
+            get
+            {
+                _lock.AcquireReaderLock(60000);
+                int result = _balls.Count;
+                _lock.ReleaseReaderLock();
+                return result;
+            }
+        }
+
+        public ReadOnlyCollection<IBall> Balls
+        {
+            get
+            {
+                _lock.AcquireReaderLock(60000);
+                ReadOnlyCollection<IBall> result = _balls.AsReadOnly();
+                _lock.ReleaseReaderLock();
+                return result;
+            }
+        }
 
         public void AddBall(IBall ball)
         {
+            _lock.AcquireWriterLock(60000);
             _balls.Add(ball);
+            _lock.ReleaseWriterLock();
         }
 
         public void ClearBalls()
         {
+            _lock.AcquireWriterLock(60000);
             _balls.Clear();
+            _lock.ReleaseWriterLock();
         }
 
         public void RemoveAt(int i)
         {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveBalls(int amount)
-        {
-            throw new NotImplementedException();
+            _lock.AcquireWriterLock(60000);
+            _balls.RemoveAt(i);
+            _lock.ReleaseWriterLock();
         }
     }
+
     public class LogicTests
     {
         private Collection<IBall> _testballs;
         private readonly object _ballsLock = new object();
-        
         [Test]
-        public void PoolBallsBehaviourTest()
-        {
-            PoolBallsBehaviourFactory poolBallsBehaviourFactory = new PoolBallsBehaviourFactory();
+        public void ControllerTest(){
+            Task.Run(async () =>
+            {
+                _testballs = new ObservableCollection<IBall>();
+                ISimulationController controller =  new PoolController(new TestTable(), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                controller.OnBallsUpdate += Controllerhelp;
+                Color color = Color.Blue;
+                Vector2 position = new Vector2(255, 0);
+                Vector2 velocity = new Vector2(-1, 1);
+                float radius = 1;
+                float mass = radius * radius;
+                    lock (controller.Lock)
+                    {
+                        controller.AddBall(color, position, velocity, mass, radius);
+                    }
+                    await Task.Run(() => WaitForUpdate(1));
+                    
+                    lock (controller.Lock)
+                    {
+                        controller.AddBall(Color.Red, new Vector2(0,255), new Vector2(1,-1), mass, radius);
+                    }
+
+                await Task.Run(() => WaitForUpdate(2));
+                await Task.Run(() => WaitChange());
+                 lock (_ballsLock)
+                 {
+                     Assert.AreEqual(2,_testballs.Count);
+                     Assert.AreNotEqual(_testballs[0].Color, _testballs[1].Color);
+                     Assert.IsTrue(_testballs[0].Position.X<255);
+                     Assert.IsTrue(_testballs[0].Position.Y>0);
+                     Assert.IsTrue(_testballs[1].Position.X>0);
+                     Assert.IsTrue(_testballs[1].Position.Y<255);
+                 }
+                controller.RemoveBalls();
+                await Task.Run(() => WaitZero());
+                lock (_ballsLock)
+                {
+                    Assert.IsEmpty(_testballs);
+                }
+                await Task.Run(() => Assert.True(true));
+
+            }).GetAwaiter().GetResult();
         }
 
-        // [Test]
-        // public void ControllerTest(){
-        //     Task.Run(async () =>
-        //     {
-        //         _testballs = new ObservableCollection<IBall>();
-        //         IPoolBallsBehaviour behaviour = new PoolBallsBehaviour();
-        //         using ISimulationController controller = new PoolController(new TestTable(), behaviour);
-        //         controller.OnBallsUpdate += Controllerhelp;
-        //         controller.AddBall(
-        //             Color.Blue,
-        //             new Vector2(19, 15),
-        //             new Vector2(10, -10),
-        //             1,
-        //             1);
-        //         controller.AddBall(
-        //             Color.Red,
-        //             new Vector2(19, 15),
-        //             new Vector2(-10, 10),
-        //             1,
-        //             1);
-        //         await Task.Run(() => WaitForUpdate());
-        //         lock (_ballsLock)
-        //         {
-        //             Assert.AreEqual(2,_testballs.Count);
-        //             Assert.AreNotEqual(_testballs[0].Color, _testballs[1].Color);
-        //             Assert.IsTrue(_testballs[0].Position.X>19);
-        //             Assert.IsTrue(_testballs[0].Position.Y<15);
-        //             Assert.IsTrue(_testballs[1].Position.Y<19);
-        //             Assert.IsTrue(_testballs[1].Position.Y>15);
-        //         }
-        //         controller.RemoveBalls();
-        //         await Task.Run(() => WaitZero());
-        //         lock (_ballsLock)
-        //         {
-        //             Assert.IsEmpty(_testballs);
-        //         }
-        //
-        //     }).GetAwaiter().GetResult();
-        // }
-
-        public async Task WaitForUpdate()
+        public async Task WaitForUpdate(int amount)
         {
-            while (_testballs.Count <2)
+            while (_testballs.Count <amount)
+            {
+                
+            }
+        }
+        public async Task WaitChange()
+        {
+            Collection<IBall> _testballs2 = _testballs;
+            while (_testballs2[0].Position.Y == _testballs[0].Position.Y && _testballs2[0].Position.X == _testballs[0].Position.X)
             {
                 
             }
