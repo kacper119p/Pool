@@ -13,6 +13,7 @@ namespace LogicTests
         private Vector2 _velocity;
         private float _mass;
         private float _radius;
+        private readonly object _lock;
 
         public TestBall(Color color, Vector2 position, Vector2 velocity)
         {
@@ -21,9 +22,11 @@ namespace LogicTests
             _velocity = velocity;
             _mass = 1;
             _radius = 1;
+            _lock = new object();
         }
 
-        public object Lock { get; }
+        
+        public object Lock => _lock;
 
         public Color Color
         {
@@ -57,108 +60,264 @@ namespace LogicTests
     }
     public class TestTable : ITable
     {
+        private readonly ReaderWriterLock _lock = new ReaderWriterLock();
         private readonly float _sizeX;
         private readonly float _sizeY;
         private readonly List<IBall> _balls;
 
         public TestTable()
         {
-            _sizeX = 100;
-            _sizeY = 100;
+            _sizeX = 256;
+            _sizeY = 256;
             _balls = new List<IBall>();
+
         }
 
-        public object Lock { get; }
+        public ReaderWriterLock Lock => _lock;
         public float SizeX => _sizeX;
 
         public float SizeY => _sizeY;
-        public int BallCount { get; }
 
-        public ReadOnlyCollection<IBall> Balls => _balls.AsReadOnly();
+        public int BallCount
+        {
+            get
+            {
+                _lock.AcquireReaderLock(60000);
+                int result = _balls.Count;
+                _lock.ReleaseReaderLock();
+                return result;
+            }
+        }
+
+        public ReadOnlyCollection<IBall> Balls
+        {
+            get
+            {
+                _lock.AcquireReaderLock(60000);
+                ReadOnlyCollection<IBall> result = _balls.AsReadOnly();
+                _lock.ReleaseReaderLock();
+                return result;
+            }
+        }
 
         public void AddBall(IBall ball)
         {
+            _lock.AcquireWriterLock(60000);
             _balls.Add(ball);
+            _lock.ReleaseWriterLock();
         }
 
         public void ClearBalls()
         {
+            _lock.AcquireWriterLock(60000);
             _balls.Clear();
+            _lock.ReleaseWriterLock();
         }
 
         public void RemoveAt(int i)
         {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveBalls(int amount)
-        {
-            throw new NotImplementedException();
+            _lock.AcquireWriterLock(60000);
+            _balls.RemoveAt(i);
+            _lock.ReleaseWriterLock();
         }
     }
+
     public class LogicTests
     {
         private Collection<IBall> _testballs;
         private readonly object _ballsLock = new object();
-        
-        // [Test]
-        // public void PoolBallsBehaviourTest()
-        // {
-        //     IPoolBallsBehaviour behaviour = new SimplifiedPoolBallsBehaviour();
-        //     ITable table = new PoolTable(100,100);
-        //     IBall ball = new TestBall(
-        //         Color.Blue,
-        //         new Vector2(15,15),
-        //         new Vector2(1,0) );
-        //     table.AddBall(ball);
-        //     behaviour.Tick(1,table);
-        //     Vector2 support = new Vector2(16, 15);
-        //     Assert.AreEqual(support,table.Balls[0].Position);
-        // }
+        [Test]
+        public void ControllerTest(){
+            _testballs = new ObservableCollection<IBall>();
+            Task.Run(async () =>
+            {
+                ISimulationController controller =  new PoolController(new TestTable(), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                controller.OnBallsUpdate += Controllerhelp;
+                Color color = Color.Blue;
+                Vector2 position = new Vector2(255, 0);
+                Vector2 velocity = new Vector2(-1, 1);
+                float radius = 1;
+                float mass = radius * radius;
+                lock (controller.Lock)
+                {
+                    controller.AddBall(color, position, velocity, mass, radius);
+                }
+                await Task.Run(() => WaitForUpdate(1));
+                    
+                lock (controller.Lock)
+                {
+                    controller.AddBall(Color.Red, new Vector2(0,255), new Vector2(1,-1), mass, radius);
+                }
 
-        // [Test]
-        // public void ControllerTest(){
-        //     Task.Run(async () =>
-        //     {
-        //         _testballs = new ObservableCollection<IBall>();
-        //         IPoolBallsBehaviour behaviour = new PoolBallsBehaviour();
-        //         using ISimulationController controller = new PoolController(new TestTable(), behaviour);
-        //         controller.OnBallsUpdate += Controllerhelp;
-        //         controller.AddBall(
-        //             Color.Blue,
-        //             new Vector2(19, 15),
-        //             new Vector2(10, -10),
-        //             1,
-        //             1);
-        //         controller.AddBall(
-        //             Color.Red,
-        //             new Vector2(19, 15),
-        //             new Vector2(-10, 10),
-        //             1,
-        //             1);
-        //         await Task.Run(() => WaitForUpdate());
-        //         lock (_ballsLock)
-        //         {
-        //             Assert.AreEqual(2,_testballs.Count);
-        //             Assert.AreNotEqual(_testballs[0].Color, _testballs[1].Color);
-        //             Assert.IsTrue(_testballs[0].Position.X>19);
-        //             Assert.IsTrue(_testballs[0].Position.Y<15);
-        //             Assert.IsTrue(_testballs[1].Position.Y<19);
-        //             Assert.IsTrue(_testballs[1].Position.Y>15);
-        //         }
-        //         controller.RemoveBalls();
-        //         await Task.Run(() => WaitZero());
-        //         lock (_ballsLock)
-        //         {
-        //             Assert.IsEmpty(_testballs);
-        //         }
-        //
-        //     }).GetAwaiter().GetResult();
-        // }
+                await Task.Run(() => WaitForUpdate(2));
+                await Task.Run(() => WaitChange());
+                lock (_ballsLock)
+                {
+                    Assert.AreEqual(2,_testballs.Count);
+                    Assert.AreNotEqual(_testballs[0].Color, _testballs[1].Color);
+                    Assert.IsTrue(_testballs[0].Position.X<255);
+                    Assert.IsTrue(_testballs[0].Position.Y>0);
+                    Assert.IsTrue(_testballs[1].Position.X>0);
+                    Assert.IsTrue(_testballs[1].Position.Y<255);
+                }
+                controller.RemoveBalls();
+                await Task.Run(() => WaitZero());
+                lock (_ballsLock)
+                {
+                    Assert.IsEmpty(_testballs);
+                }
+                controller.OnBallsUpdate -= Controllerhelp;
+                controller.Dispose();
+            }).GetAwaiter().GetResult();
+        }
 
-        public async Task WaitForUpdate()
+        [Test]
+        public void CollisionTests()
         {
-            while (_testballs.Count <2)
+            _testballs = new ObservableCollection<IBall>();
+            Task.Run(async () =>
+            {
+                ISimulationController controller =  new PoolController(new TestTable(), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                controller.OnBallsUpdate += Controllerhelp;
+                Color color = Color.Blue;
+                Vector2 position = new Vector2(10, 10);
+                Vector2 velocity = new Vector2(0, 0.5f);
+                float radius = 1;
+                float mass = radius * radius;
+                lock (controller.Lock)
+                {
+                    controller.AddBall(color, position, velocity, mass, radius);
+                }
+                await Task.Run(() => WaitForUpdate(1));
+                    
+                lock (controller.Lock)
+                {
+                    controller.AddBall(Color.Red, new Vector2(10,11), new Vector2(0,-0.5f), mass, radius);
+                }
+
+                await Task.Run(() => WaitForUpdate(2));
+                await Task.Run(() => WaitChange());
+                lock (_ballsLock)
+                {
+                    Assert.AreEqual(2,_testballs.Count);
+                    Assert.AreNotEqual(_testballs[0].Color, _testballs[1].Color);
+                    Assert.IsTrue(_testballs[0].Position.Y<11);
+                    Assert.IsTrue(_testballs[1].Position.Y>11);
+                }
+                controller.RemoveBalls();
+                await Task.Run(() => WaitZero());
+                lock (_ballsLock)
+                {
+                    Assert.IsEmpty(_testballs);
+                }
+                controller.OnBallsUpdate -= Controllerhelp;
+                controller.Dispose();
+
+            }).GetAwaiter().GetResult();
+            
+            Task.Run(async () =>
+            {
+                ISimulationController controller =  new PoolController(new TestTable(), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                controller.OnBallsUpdate += Controllerhelp;
+                Color color = Color.Blue;
+                Vector2 position = new Vector2(10, 10);
+                Vector2 velocity = new Vector2(1, 0);
+                float radius = 1;
+                float mass = radius * radius;
+                lock (controller.Lock)
+                {
+                    controller.AddBall(color, position, velocity, mass, radius);
+                }
+                await Task.Run(() => WaitForUpdate(1));
+                    
+                lock (controller.Lock)
+                {
+                    controller.AddBall(Color.Red, new Vector2(11,10), new Vector2(-1,0), mass, radius);
+                }
+
+                await Task.Run(() => WaitForUpdate(2));
+                await Task.Run(() => WaitChange());
+                lock (_ballsLock)
+                {
+                    Assert.AreEqual(2,_testballs.Count);
+                    Assert.AreNotEqual(_testballs[0].Color, _testballs[1].Color);
+                    Assert.IsTrue(_testballs[0].Position.X<11);
+                    Assert.IsTrue(_testballs[1].Position.X>11);
+                }
+                controller.RemoveBalls();
+                await Task.Run(() => WaitZero());
+                lock (_ballsLock)
+                {
+                    Assert.IsEmpty(_testballs);
+                }
+                controller.OnBallsUpdate -= Controllerhelp;
+                controller.Dispose();
+
+            }).GetAwaiter().GetResult();
+            
+        }
+        [Test]
+        public void TreeNegTests()
+        {
+            _testballs = new ObservableCollection<IBall>();
+            Task.Run(async () =>
+            {
+                ICollisionSolverFactory collisionSolverFactory = new PoolCollisionSolverFactory();
+                ITable table = new TestTable();
+                IBall ball = new TestBall(Color.Blue, new Vector2(90,90),new Vector2(-1,-1));
+                IBall ball1 = new TestBall(Color.Red, new Vector2(101,101),new Vector2(1,1));
+                table.AddBall(ball);
+                table.AddBall(ball1);
+                ICollisionSolver collisionSolver = collisionSolverFactory.Create(table,0.1f);
+                collisionSolver.Update();
+                Vector2 lowerBound = new Vector2(table.Balls[0].Position.X - table.Balls[0].Radius, table.Balls[0].Position.Y - table.Balls[0].Radius);
+                Vector2 upperBound = new Vector2(table.Balls[0].Position.X + table.Balls[0].Radius, table.Balls[0].Position.Y + table.Balls[0].Radius);
+                AabbBox bounds = new AabbBox(lowerBound, upperBound);
+                
+                LinkedList<int> candidates = collisionSolver.CollisionTree.Query(bounds);
+                Assert.AreNotEqual(2,candidates.Count);
+
+            }).GetAwaiter().GetResult();
+        }
+
+        [Test]
+        public void TreePositiveTests()
+        {
+            _testballs = new ObservableCollection<IBall>();
+            Task.Run(async () =>
+            {
+                ICollisionSolverFactory collisionSolverFactory = new PoolCollisionSolverFactory();
+                ITable table = new TestTable();
+                IBall ball = new TestBall(Color.Blue, new Vector2(100,100),new Vector2(1,1));
+                IBall ball1 = new TestBall(Color.Red, new Vector2(101,101),new Vector2(-1,-1));
+                table.AddBall(ball);
+                table.AddBall(ball1);
+                ICollisionSolver collisionSolver = collisionSolverFactory.Create(table,1f);
+                collisionSolver.Update();
+                Vector2 lowerBound = new Vector2(table.Balls[0].Position.X - table.Balls[0].Radius, table.Balls[0].Position.Y - table.Balls[0].Radius);
+                Vector2 upperBound = new Vector2(table.Balls[0].Position.X + table.Balls[0].Radius, table.Balls[0].Position.Y + table.Balls[0].Radius);
+                AabbBox bounds = new AabbBox(lowerBound, upperBound);
+                
+                LinkedList<int> candidates = collisionSolver.CollisionTree.Query(bounds);
+                Assert.AreEqual(2,candidates.Count);
+
+            }).GetAwaiter().GetResult();
+        }
+
+        public async Task WaitForUpdate(int amount)
+        {
+            while (_testballs.Count <amount)
+            {
+                
+            }
+        }
+        public async Task WaitChange()
+        {
+            Collection<IBall> testballs2 = _testballs;
+            while (testballs2[0].Position.Y == _testballs[0].Position.Y &&
+                   testballs2[0].Position.X == _testballs[0].Position.X &&
+                   testballs2[1].Position.Y == _testballs[1].Position.Y &&
+                   testballs2[1].Position.X == _testballs[1].Position.X)
             {
                 
             }
