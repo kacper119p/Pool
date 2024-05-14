@@ -264,7 +264,10 @@ namespace LogicTests
         public async Task WaitChange()
         {
             Collection<IBall> testballs2 = _testballs;
-            while (testballs2[0].Position.Y == _testballs[0].Position.Y && testballs2[0].Position.X == _testballs[0].Position.X)
+            while (testballs2[0].Position.Y == _testballs[0].Position.Y &&
+                   testballs2[0].Position.X == _testballs[0].Position.X &&
+                   testballs2[1].Position.Y == _testballs[1].Position.Y &&
+                   testballs2[1].Position.X == _testballs[1].Position.X)
             {
                 
             }
