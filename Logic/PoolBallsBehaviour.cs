@@ -50,7 +50,7 @@ public class PoolBallsBehaviour : IPoolBallsBehaviour
             {
                 if (candidate > _id)
                 {
-                    lock (_table.Balls[candidate])
+                    lock (_table.Balls[candidate].Lock)
                     {
                         SolveCollision(_ball, _table.Balls[candidate]);
                     }
