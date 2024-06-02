@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Timers;
 using Data;
+using Data.Logging;
 using Timer = System.Timers.Timer;
 
 namespace Logic
@@ -22,13 +23,14 @@ namespace Logic
         private readonly Random _random = new Random();
         private readonly Timer _updateTimer;
         private readonly ICollisionSolver _collisionSolver;
+        private readonly ILogger _logger;
 
         public object Lock => _tablesLock;
 
         public event EventHandler<ReadOnlyCollection<IBallData>>? OnBallsUpdate;
 
         public PoolController(ITable table, IBallsBehaviourFactory ballsBehaviourFactory,
-            ICollisionSolverFactory collisionSolverFactory)
+            ICollisionSolverFactory collisionSolverFactory, ILogger logger)
         {
             _table = table;
             _ballsBehaviourFactory = ballsBehaviourFactory;
@@ -37,6 +39,7 @@ namespace Logic
             _updateTimer.Elapsed += Update;
             _updateTimer.Start();
             _collisionSolver = collisionSolverFactory.Create(table, UpdateInterval);
+            _logger = logger;
         }
 
         public void AddBall(Color color, Vector2 position, Vector2 velocity, float mass, float radius)
@@ -47,7 +50,7 @@ namespace Logic
                 PoolBall ball = new PoolBall(color, position, velocity, mass, radius);
                 _table.AddBall(ball);
                 _behaviourHandles.Add(_ballsBehaviourFactory.Create(ball, UpdateInterval,
-                    _collisionSolver.CollisionTree, _behaviourHandles.Count, _table));
+                    _collisionSolver.CollisionTree, _behaviourHandles.Count, _table, _logger));
                 _ballData.Add(new PoolBallData());
                 _table.Lock.ReleaseWriterLock();
             }
@@ -60,7 +63,7 @@ namespace Logic
                 _table.Lock.AcquireWriterLock(60000);
                 _table.AddBall(ball);
                 _behaviourHandles.Add(_ballsBehaviourFactory.Create(ball, UpdateInterval,
-                    _collisionSolver.CollisionTree, _behaviourHandles.Count, _table));
+                    _collisionSolver.CollisionTree, _behaviourHandles.Count, _table, _logger));
                 _ballData.Add(new PoolBallData());
                 _table.Lock.ReleaseWriterLock();
             }
@@ -115,6 +118,7 @@ namespace Logic
                 RemoveBalls();
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource.Dispose();
+                _logger.Dispose();
             }
         }
 
