@@ -1,6 +1,8 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using System.Timers;
 using Data;
+using Data.Logging;
 using Timer = System.Timers.Timer;
 
 namespace Logic;
@@ -12,6 +14,8 @@ public class PoolBallsBehaviour : IPoolBallsBehaviour
     private readonly float _deltaTime;
     private readonly AabbTree _collisionTree;
     private readonly ITable _table;
+    private readonly ILogger _logger;
+    private readonly Stopwatch _stopwatch;
     private int _id;
 
     public int Id
@@ -20,11 +24,14 @@ public class PoolBallsBehaviour : IPoolBallsBehaviour
         set => _id = value;
     }
 
-    public PoolBallsBehaviour(IBall ball, float interval, AabbTree collisionTree, int id, ITable table)
+    public PoolBallsBehaviour(IBall ball, float interval, AabbTree collisionTree, int id, ITable table, ILogger logger)
     {
         _id = id;
         _ball = ball;
         _table = table;
+        _logger = logger;
+        _stopwatch = new Stopwatch();
+        _stopwatch.Start();
         _collisionTree = collisionTree;
         _timer = new Timer(interval);
         _deltaTime = interval / 1000.0f;
@@ -35,41 +42,50 @@ public class PoolBallsBehaviour : IPoolBallsBehaviour
 
     private void Tick(Object? source, ElapsedEventArgs e)
     {
+        int collisionCount = 0;
+        int potentialCollisonsCount = 0;
         _table.Lock.AcquireReaderLock(60000);
         _collisionTree.Lock.AcquireReaderLock(60000);
         lock (_ball.Lock)
         {
-            _ball.Position += _ball.Velocity * _deltaTime;
+            _ball.Position += _ball.Velocity * (float)_stopwatch.Elapsed.TotalSeconds;
 
             Vector2 lowerBound = new Vector2(_ball.Position.X - _ball.Radius, _ball.Position.Y - _ball.Radius);
             Vector2 upperBound = new Vector2(_ball.Position.X + _ball.Radius, _ball.Position.Y + _ball.Radius);
             AabbBox bounds = new AabbBox(lowerBound, upperBound);
 
             LinkedList<int> candidates = _collisionTree.Query(bounds);
+            potentialCollisonsCount = candidates.Count;
             foreach (int candidate in candidates)
             {
                 if (candidate > _id)
                 {
                     lock (_table.Balls[candidate].Lock)
                     {
+                        if (!CheckCollision(_ball, _table.Balls[candidate]))
+                        {
+                            continue;
+                        }
+
                         SolveCollision(_ball, _table.Balls[candidate]);
+                        collisionCount++;
                     }
                 }
             }
 
             BoundsCollision(_ball);
         }
+
         _collisionTree.Lock.ReleaseReaderLock();
         _table.Lock.ReleaseReaderLock();
+
+        _logger.LogData(new LogData(DateTime.Now, _stopwatch.Elapsed.TotalMilliseconds, _id, collisionCount,
+            potentialCollisonsCount));
+        _stopwatch.Restart();
     }
 
     private void SolveCollision(IBall a, IBall b)
     {
-        if (!CheckCollision(a, b))
-        {
-            return;
-        }
-
         Vector2 offset = a.Position - b.Position;
         float overlay = (a.Radius + b.Radius) - offset.Length();
         offset = offset / offset.Length() * overlay;
