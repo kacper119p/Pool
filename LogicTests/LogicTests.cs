@@ -2,10 +2,89 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Numerics;
 using Data;
+using Data.Logging;
 using Logic;
+using System.Text.Json;
 
 namespace LogicTests
 {
+    public class TestLogger : ILogger
+    {
+        private readonly Queue<LogData> _queue;
+        private readonly ManualResetEvent _hasNewItems = new ManualResetEvent(false);
+        private readonly ManualResetEvent _terminate;
+        private readonly ManualResetEvent _waiting;
+        private readonly WaitHandle[] _waitHandle;
+        private readonly string _filePath;
+
+        public TestLogger()
+        {
+            _filePath = "filePath.log";
+            _queue = new Queue<LogData>();
+            _hasNewItems = new ManualResetEvent(false);
+            _terminate = new ManualResetEvent(false);
+            _waiting = new ManualResetEvent(false);
+            _waitHandle = new WaitHandle[] { _hasNewItems, _terminate };
+        
+            Thread threadHandle = new Thread(ProcessRequests);
+            threadHandle.Start();
+
+       
+        }
+
+        public void LogData(LogData data)
+        {
+            lock (_queue)
+            {
+                _queue.Enqueue(data);
+            }
+
+            _hasNewItems.Set();
+        }
+
+        public void Dispose()
+        {
+            _terminate.Set();
+        }
+
+        private void ProcessRequests()
+        {
+            while (true)
+            {
+                _waiting.Set();
+                int i = WaitHandle.WaitAny(_waitHandle);
+                _hasNewItems.Reset();
+                _waiting.Reset();
+
+                Queue<LogData> queueCopy;
+                lock (_queue)
+                {
+                    queueCopy = new Queue<LogData>(_queue);
+                    _queue.Clear();
+                }
+
+                using (StreamWriter writer = new StreamWriter(_filePath, true))
+                {
+                    foreach (LogData data in queueCopy)
+                    {
+                        string str = JsonSerializer.Serialize(data);
+                        writer.WriteLine(str);
+                    }
+                }
+
+                if (i == 1)
+                {
+                    return;
+                }
+            }
+        }
+
+
+        public void Debug(string message, params object[] args)
+        {
+        }
+    }
+    
     public class TestBall : IBall
     {
         private Color _color;
@@ -126,12 +205,15 @@ namespace LogicTests
     {
         private Collection<IBall> _testballs;
         private readonly object _ballsLock = new object();
+        
+
         [Test]
         public void ControllerTest(){
             _testballs = new ObservableCollection<IBall>();
             Task.Run(async () =>
             {
-                ISimulationController controller =  new PoolController(new TestTable(), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                ILogger logger = new TestLogger();
+                ISimulationController controller =  new PoolController(new TestTable(), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory(),logger);
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
                 Vector2 position = new Vector2(255, 0);
@@ -177,7 +259,8 @@ namespace LogicTests
             _testballs = new ObservableCollection<IBall>();
             Task.Run(async () =>
             {
-                ISimulationController controller =  new PoolController(new TestTable(), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                ILogger logger = new TestLogger();
+                ISimulationController controller =  new PoolController(new TestTable(), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory(),logger);
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
                 Vector2 position = new Vector2(10, 10);
@@ -217,7 +300,8 @@ namespace LogicTests
             
             Task.Run(async () =>
             {
-                ISimulationController controller =  new PoolController(new TestTable(), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                ILogger logger = new TestLogger();
+                ISimulationController controller =  new PoolController(new TestTable(), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory(),logger);
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
                 Vector2 position = new Vector2(10, 10);

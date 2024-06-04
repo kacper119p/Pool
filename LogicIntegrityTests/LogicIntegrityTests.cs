@@ -2,7 +2,9 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Numerics;
 using Data;
+using Data.Logging;
 using Logic;
+
 namespace LogicIntegrityTests;
 using NUnit.Framework;
 
@@ -10,12 +12,14 @@ public class Tests
 {
         private Collection<IBall> _testballs;
         private readonly object _ballsLock = new object();
+        
         [Test]
         public void ControllerTest(){
             _testballs = new ObservableCollection<IBall>();
             Task.Run(async () =>
             {
-                ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                ILogger logger = new FileLogger("test.log");
+                ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory(),logger);
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
                 Vector2 position = new Vector2(255, 0);
@@ -52,6 +56,7 @@ public class Tests
                 }
                 controller.OnBallsUpdate -= Controllerhelp;
                 controller.Dispose();
+                File.Delete("test.log");
             }).GetAwaiter().GetResult();
         }
 
@@ -61,7 +66,8 @@ public class Tests
             _testballs = new ObservableCollection<IBall>();
             Task.Run(async () =>
             {
-                ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                ILogger logger = new FileLogger("test.log");
+                ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory(),logger);
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
                 Vector2 position = new Vector2(10, 10);
@@ -96,12 +102,14 @@ public class Tests
                 }
                 controller.OnBallsUpdate -= Controllerhelp;
                 controller.Dispose();
+                File.Delete("test.log");
 
             }).GetAwaiter().GetResult();
             
             Task.Run(async () =>
             {
-                ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                ILogger logger = new FileLogger("test.log");
+                ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory(),logger);
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
                 Vector2 position = new Vector2(10, 10);
@@ -136,6 +144,7 @@ public class Tests
                 }
                 controller.OnBallsUpdate -= Controllerhelp;
                 controller.Dispose();
+                File.Delete("test.log");
 
             }).GetAwaiter().GetResult();
             
