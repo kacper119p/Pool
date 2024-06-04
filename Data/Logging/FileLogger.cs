@@ -5,7 +5,7 @@ namespace Data.Logging;
 public class FileLogger : ILogger
 {
     private readonly Queue<LogData> _queue;
-    private readonly ManualResetEvent _hasNewItems = new ManualResetEvent(false);
+    private readonly ManualResetEvent _hasNewItems;
     private readonly ManualResetEvent _terminate;
     private readonly ManualResetEvent _waiting;
     private readonly WaitHandle[] _waitHandle;
@@ -19,21 +19,22 @@ public class FileLogger : ILogger
         _terminate = new ManualResetEvent(false);
         _waiting = new ManualResetEvent(false);
         _waitHandle = new WaitHandle[] { _hasNewItems, _terminate };
-        
+
         Thread threadHandle = new Thread(ProcessRequests);
         threadHandle.Start();
-
-       
     }
 
     public void LogData(LogData data)
     {
-        lock (_queue)
+        Task.Run(() =>
         {
-            _queue.Enqueue(data);
-        }
+            lock (_queue)
+            {
+                _queue.Enqueue(data);
+            }
 
-        _hasNewItems.Set();
+            _hasNewItems.Set();
+        });
     }
 
     public void Dispose()
