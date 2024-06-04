@@ -2,7 +2,9 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Numerics;
 using Data;
+using Data.Logging;
 using Logic;
+
 namespace LogicIntegrityTests;
 using NUnit.Framework;
 
@@ -15,7 +17,8 @@ public class Tests
             _testballs = new ObservableCollection<IBall>();
             Task.Run(async () =>
             {
-                ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                ILogger logger = new FileLogger("test.log");
+                ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory(),logger);
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
                 Vector2 position = new Vector2(255, 0);
@@ -61,7 +64,8 @@ public class Tests
             _testballs = new ObservableCollection<IBall>();
             Task.Run(async () =>
             {
-                ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                ILogger logger = new FileLogger("test.log");
+                ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory(),logger);
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
                 Vector2 position = new Vector2(10, 10);
@@ -101,7 +105,8 @@ public class Tests
             
             Task.Run(async () =>
             {
-                ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory());
+                ILogger logger = new FileLogger("test.log");
+                ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory(),logger);
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
                 Vector2 position = new Vector2(10, 10);
