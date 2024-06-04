@@ -44,6 +44,7 @@ namespace LogicTests
 
         public void Dispose()
         {
+            File.Delete("filePath.log");
             _terminate.Set();
         }
 

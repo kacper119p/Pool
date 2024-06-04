@@ -55,6 +55,7 @@ public class Tests
                 }
                 controller.OnBallsUpdate -= Controllerhelp;
                 controller.Dispose();
+                File.Delete("test.log");
             }).GetAwaiter().GetResult();
         }
 
@@ -100,6 +101,7 @@ public class Tests
                 }
                 controller.OnBallsUpdate -= Controllerhelp;
                 controller.Dispose();
+                File.Delete("test.log");
 
             }).GetAwaiter().GetResult();
             
@@ -141,6 +143,7 @@ public class Tests
                 }
                 controller.OnBallsUpdate -= Controllerhelp;
                 controller.Dispose();
+                File.Delete("test.log");
 
             }).GetAwaiter().GetResult();
             
