@@ -18,7 +18,7 @@ public class Tests
             _testballs = new ObservableCollection<IBall>();
             Task.Run(async () =>
             {
-                ILogger logger = new FileLogger("test.log");
+                ILogger logger = new FileLogger("ControllerTest.log");
                 ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory(),logger);
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
@@ -56,7 +56,7 @@ public class Tests
                 }
                 controller.OnBallsUpdate -= Controllerhelp;
                 controller.Dispose();
-                File.Delete("test.log");
+                File.Delete("ControllerTest.log");
             }).GetAwaiter().GetResult();
         }
 
@@ -66,7 +66,7 @@ public class Tests
             _testballs = new ObservableCollection<IBall>();
             Task.Run(async () =>
             {
-                ILogger logger = new FileLogger("test.log");
+                ILogger logger = new FileLogger("CollisionTest.log");
                 ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory(),logger);
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
@@ -102,13 +102,13 @@ public class Tests
                 }
                 controller.OnBallsUpdate -= Controllerhelp;
                 controller.Dispose();
-                File.Delete("test.log");
+                File.Delete("CollisionTest.log");
 
             }).GetAwaiter().GetResult();
             
             Task.Run(async () =>
             {
-                ILogger logger = new FileLogger("test.log");
+                ILogger logger = new FileLogger("CollisionTest2.log");
                 ISimulationController controller =  new PoolController(new PoolTable(256,256), new PoolBallsBehaviourFactory(), new PoolCollisionSolverFactory(),logger);
                 controller.OnBallsUpdate += Controllerhelp;
                 Color color = Color.Blue;
@@ -144,7 +144,7 @@ public class Tests
                 }
                 controller.OnBallsUpdate -= Controllerhelp;
                 controller.Dispose();
-                File.Delete("test.log");
+                File.Delete("CollisionTest2.log");
 
             }).GetAwaiter().GetResult();
             

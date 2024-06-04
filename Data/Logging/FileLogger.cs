@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace Data.Logging;
@@ -7,9 +8,11 @@ public class FileLogger : ILogger
     private readonly Queue<LogData> _queue;
     private readonly ManualResetEvent _hasNewItems;
     private readonly ManualResetEvent _terminate;
-    private readonly ManualResetEvent _waiting;
     private readonly WaitHandle[] _waitHandle;
     private readonly string _filePath;
+    private volatile bool _terminateFlag;
+
+    private readonly Thread _threadHandle;
 
     public FileLogger(string filePath)
     {
@@ -17,11 +20,11 @@ public class FileLogger : ILogger
         _queue = new Queue<LogData>();
         _hasNewItems = new ManualResetEvent(false);
         _terminate = new ManualResetEvent(false);
-        _waiting = new ManualResetEvent(false);
         _waitHandle = new WaitHandle[] { _hasNewItems, _terminate };
 
-        Thread threadHandle = new Thread(ProcessRequests);
-        threadHandle.Start();
+        _threadHandle = new Thread(ProcessRequests);
+        _threadHandle.IsBackground = true;
+        _threadHandle.Start();
     }
 
     public void LogData(LogData data)
@@ -40,16 +43,15 @@ public class FileLogger : ILogger
     public void Dispose()
     {
         _terminate.Set();
+        _threadHandle.Join();
     }
 
     private void ProcessRequests()
     {
-        while (true)
+        while (!_terminateFlag)
         {
-            _waiting.Set();
             int i = WaitHandle.WaitAny(_waitHandle);
             _hasNewItems.Reset();
-            _waiting.Reset();
 
             Queue<LogData> queueCopy;
             lock (_queue)
@@ -58,14 +60,31 @@ public class FileLogger : ILogger
                 _queue.Clear();
             }
 
-            using (StreamWriter writer = new StreamWriter(_filePath, true))
+            StreamWriter writer;
+
+            while (true)
             {
-                foreach (LogData data in queueCopy)
+                try
                 {
-                    string str = JsonSerializer.Serialize(data);
-                    writer.WriteLine(str);
+                    writer = new StreamWriter(_filePath, true);
+                    break;
+                }
+                catch (IOException)
+                {
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    return;
                 }
             }
+
+            foreach (LogData data in queueCopy)
+            {
+                string str = JsonSerializer.Serialize(data);
+                writer.WriteLine(str);
+            }
+
+            writer.Dispose();
 
             if (i == 1)
             {
