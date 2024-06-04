@@ -206,6 +206,24 @@ namespace LogicTests
     {
         private Collection<IBall> _testballs;
         private readonly object _ballsLock = new object();
+
+        [Test]
+        public void LogTest()
+        {
+            ILogger logger = new TestLogger();
+            LogData data = new LogData(new DateTime(2024,6,1),1.0,0,1,1);
+            using(FileStream fileStream = new FileStream("filePath.log",FileMode.Open,FileAccess.Read,FileShare.ReadWrite))
+            {
+                using(StreamReader streamReader = new StreamReader(fileStream))
+                {
+                    logger.LogData(data);
+                    Assert.AreEqual(JsonSerializer.Serialize(data), streamReader.ReadLine());
+                }
+                File.Delete("filePath.log");
+            }
+        }
+        
+
         [Test]
         public void ControllerTest(){
             _testballs = new ObservableCollection<IBall>();
