@@ -42,10 +42,10 @@ public class PoolBallsBehaviour : IPoolBallsBehaviour
 
     private void Tick(Object? source, ElapsedEventArgs e)
     {
-        int collisionCount = 0;
         int potentialCollisonsCount = 0;
         _table.Lock.AcquireReaderLock(60000);
         _collisionTree.Lock.AcquireReaderLock(60000);
+        List<int> collisions = new List<int>();
         lock (_ball.Lock)
         {
             _ball.Position += _ball.Velocity * (float)_stopwatch.Elapsed.TotalSeconds;
@@ -68,7 +68,7 @@ public class PoolBallsBehaviour : IPoolBallsBehaviour
                         }
 
                         SolveCollision(_ball, _table.Balls[candidate]);
-                        collisionCount++;
+                        collisions.Add(candidate);
                     }
                 }
             }
@@ -79,8 +79,8 @@ public class PoolBallsBehaviour : IPoolBallsBehaviour
         _collisionTree.Lock.ReleaseReaderLock();
         _table.Lock.ReleaseReaderLock();
 
-        _logger.LogData(new LogData(DateTime.Now, _stopwatch.Elapsed.TotalMilliseconds, _id, collisionCount,
-            potentialCollisonsCount));
+        _logger.LogData(new LogData(DateTime.Now, _stopwatch.Elapsed.TotalMilliseconds, _id, collisions.Count,
+            potentialCollisonsCount, _ball.Position, collisions));
         _stopwatch.Restart();
     }
 

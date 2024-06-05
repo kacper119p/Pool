@@ -23,7 +23,7 @@ internal class PoolModel
         _simulationController = new PoolController(new PoolTable(800, 350),
             new PoolBallsBehaviourFactory(),
             new PoolCollisionSolverFactory(),
-            new FileLogger("log.json"));
+            new FileLogger($"log_{DateTime.Now.Year}_{DateTime.Now.Month}_{DateTime.Now.Day}-{DateTime.Now.Hour}_{DateTime.Now.Minute}_{DateTime.Now.Second}.json"));
 
         _balls = new ObservableCollection<BallRenderData>();
 
